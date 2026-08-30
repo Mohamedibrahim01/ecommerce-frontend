@@ -86,7 +86,7 @@ export default function ResetPassword({ params }: { params: Promise<{ token: str
     const passwordResult = passwordSchema.safeParse(formData.password);
     if (!passwordResult.success) {
       setErrors({
-        password: passwordResult.error.errors[0].message,
+        password: passwordResult.error.issues[0].message,
       });
       return;
     }

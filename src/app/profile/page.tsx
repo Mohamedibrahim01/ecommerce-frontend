@@ -250,7 +250,7 @@ export default function ProfilePage() {
 
                 <h2 className="mt-3 text-lg font-black text-stone-900 flex items-center justify-center gap-1.5">
                   {userData.name}
-                  {userData.isEmailConfirmed && <ShieldCheck className="h-4 w-4 text-emerald-500" title="Email Confirmed" />}
+                  {userData.isEmailConfirmed && <ShieldCheck className="h-4 w-4 text-emerald-500" aria-label="Email Confirmed" />}
                 </h2>
 
                 <Badge variant={userData.isAdmin ? "destructive" : "emerald"} className="mt-2 font-semibold">

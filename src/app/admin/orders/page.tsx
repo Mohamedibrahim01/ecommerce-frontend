@@ -417,7 +417,7 @@ export default function AdminOrdersPage() {
             : "Confirm status change?"
         }
         confirmText="Confirm Delivery"
-        variant="primary"
+        variant="default"
         isLoading={isUpdating}
       />
     </div>
