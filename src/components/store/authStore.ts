@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { api } from "../auth/axiosInstance";
 
-const AUTH_API_BASE_URL = "http://localhost:5000/api/v1/auth";
 
 export const ROLES = {
   ADMIN: "Admin",
@@ -98,11 +97,9 @@ export const useAuthStore = create<AuthState>()(
       checkRefresh: async () => {
         try {
           const response = await api.post(
-            `${AUTH_API_BASE_URL}/refresh-token`,
+            "/auth/refresh-token",
             {},
-            {
-              withCredentials: true,
-            },
+            { withCredentials: true },
           );
           const token = response.data?.token || response.data?.accessToken || null;
           const roles = response.data?.roles;

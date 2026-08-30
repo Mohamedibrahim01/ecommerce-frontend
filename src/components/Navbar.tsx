@@ -107,7 +107,9 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   const accessToken = useAuthStore((state) => state.accessToken);
-  const isAdmin = useAuthStore((state) => state.isAdmin());
+  // Derive isAdmin from roles array directly (not as a function call) to maintain Zustand reactivity
+  const roles = useAuthStore((state) => state.roles);
+  const isAdmin = roles.some((r) => r.toLowerCase() === "admin" || r.toLowerCase() === "administrator");
   const cartItems = useCartStore((state) => state.items);
   const [cartCount, setCartCount] = useState(0);
   const [prevCount, setPrevCount] = useState(0);
@@ -142,7 +144,7 @@ export default function Navbar() {
   useEffect(() => {
     if (accessToken) {
       api
-        .get("/User/profile")
+        .get("/users/profile")
         .then((res) => setUserProfile(res.data))
         .catch(() => { });
     } else {
@@ -203,7 +205,8 @@ export default function Navbar() {
   // Existing Log Out logic relocated
   async function handleLogOut() {
     try {
-      await api.post("http://localhost:5000/api/v1/auth/logout");
+      // Use relative path so axios instance adds withCredentials + Authorization header
+      await api.post("/auth/logout");
       useCartStore.getState().clearCart();
     } catch (error) {
       console.error("Logout error", error);

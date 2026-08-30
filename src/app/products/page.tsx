@@ -85,9 +85,12 @@ function ProductsContent() {
   useEffect(() => { setIsClient(true); }, []);
 
   // Sync state with URL if user navigates back/forward
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (urlSearch !== searchQuery) setSearchQuery(urlSearch);
     if (urlCategory !== selectedCategoryId) setSelectedCategoryId(urlCategory);
+  // Only run when the URL params change, not when local state changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSearch, urlCategory]);
 
   // Fetch Categories for Filter Dropdown

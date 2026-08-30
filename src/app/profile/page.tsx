@@ -43,7 +43,7 @@ function SkeletonProfile() {
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<UserData | null>(null);
-  
+
   // General Info Form State
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -109,21 +109,21 @@ export default function ProfilePage() {
         }
       });
       const newAvatarUrl = res.data?.data?.avatar || res.data?.avatar;
-      
+
       setUserData((prev) => prev ? { ...prev, avatar: newAvatarUrl } : null);
-      
+
       const user = useAuthStore.getState().user;
       if (user) {
         useAuthStore.setState({ user: { ...user, avatar: newAvatarUrl } });
       }
-      
+
       toast.success(res.data?.message || "Avatar uploaded successfully!");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to upload avatar");
     } finally {
       setIsUploadingAvatar(false);
     }
-    
+
     e.target.value = ""; // Reset input
   };
 
@@ -134,16 +134,16 @@ export default function ProfilePage() {
       const payload = { name, email };
       const res = await api.put("/users/profile", payload);
       const updatedUser = res.data?.data || res.data;
-      
+
       setUserData((prev) => prev ? { ...prev, ...updatedUser } : null);
       setName(updatedUser.name || name);
       setEmail(updatedUser.email || email);
-      
+
       const user = useAuthStore.getState().user;
       if (user) {
         useAuthStore.setState({ user: { ...user, name: updatedUser.name, email: updatedUser.email } });
       }
-      
+
       toast.success("Profile updated successfully!");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to update profile");
@@ -158,7 +158,7 @@ export default function ProfilePage() {
       toast.error("New passwords do not match.");
       return;
     }
-    
+
     const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+=-]).{8,}$/;
     if (!pattern.test(password.newPassword)) {
       toast.error("Password must be at least 8 characters, include an uppercase letter, lowercase letter, number, and special character.");
@@ -186,7 +186,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-stone-50" dir="ltr">
       <div className="container-xl py-10 space-y-8 max-w-5xl mx-auto px-4">
-        
+
         {/* ── Page Header ──────────────────────────────────────────────── */}
         <div className="flex items-center justify-between">
           <div>
@@ -196,7 +196,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          
+
           {/* ── Left: Avatar Card ────────────────────────────────────── */}
           <div className="space-y-4">
             <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-sm">
@@ -250,25 +250,20 @@ export default function ProfilePage() {
 
                 <h2 className="mt-3 text-lg font-black text-stone-900 flex items-center justify-center gap-1.5">
                   {userData.name}
-                  {userData.isEmailConfirmed && <ShieldCheck className="h-4 w-4 text-emerald-500" aria-label="Email Confirmed" />}
                 </h2>
 
                 <Badge variant={userData.isAdmin ? "destructive" : "emerald"} className="mt-2 font-semibold">
                   {userData.isAdmin ? "Admin" : "Member"}
                 </Badge>
-                
-                {!userData.isEmailConfirmed && (
-                  <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-orange-600 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-200">
-                    <AlertCircle className="h-4 w-4" /> Email not verified
-                  </div>
-                )}
+
+
               </div>
             </div>
           </div>
 
           {/* ── Right: Forms ────────────────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* General Information */}
             <Card className="bg-white border-stone-200 shadow-sm rounded-2xl overflow-hidden">
               <CardHeader className="border-b border-stone-100 bg-stone-50/50 pb-4">

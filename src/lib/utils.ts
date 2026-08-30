@@ -16,12 +16,33 @@ export function formatPrice(amount: number | null | undefined): string {
   return `EGP ${formatted}`;
 }
 
+// The backend base origin (without /api/v1 path) — used for resolving /uploads/ paths
+const BACKEND_ORIGIN =
+  (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1")
+    .replace(/\/api\/v1\/?$/, "");
+
 export function normalizeImageUrl(url?: string | null): string {
-  if (!url) return "";
+  if (!url) return "/logo.png";
   const trimmed = url.trim();
+  if (!trimmed) return "/logo.png";
+
+  // Already an absolute URL — return as-is
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return trimmed;
+  }
+
+  // Protocol-relative URL (e.g. //cdn.example.com/img.jpg)
   if (trimmed.startsWith("//")) {
     return `https:${trimmed}`;
   }
+
+  // Backend-relative path (e.g. /uploads/avatar-xxx.jpg)
+  // Must be served from the backend origin, NOT the Next.js origin
+  if (trimmed.startsWith("/uploads/")) {
+    return `${BACKEND_ORIGIN}${trimmed}`;
+  }
+
+  // Any other relative path — return as-is (public folder assets like /logo.png)
   return trimmed;
 }
 

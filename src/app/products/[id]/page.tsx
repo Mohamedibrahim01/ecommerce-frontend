@@ -191,13 +191,20 @@ export default function SingleProductPage() {
                   src={normalizeImageUrl(product.image)}
                   alt={product.name}
                   className="max-w-full max-h-full object-contain p-8 mix-blend-multiply"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                    if (fallback) fallback.style.display = "flex";
+                  }}
                 />
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-stone-300">
-                  <Package className="h-16 w-16" aria-hidden="true" />
-                  <span className="text-sm">No image</span>
-                </div>
-              )}
+              ) : null}
+              <div
+                className="flex-col items-center gap-2 text-stone-300"
+                style={{ display: product.image ? "none" : "flex" }}
+              >
+                <Package className="h-16 w-16" aria-hidden="true" />
+                <span className="text-sm">No image</span>
+              </div>
             </div>
           </div>
 

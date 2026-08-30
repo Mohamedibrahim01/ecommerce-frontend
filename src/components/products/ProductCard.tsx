@@ -38,6 +38,8 @@ export const ProductCard = ({ product, isRecommended = false, className }: Produ
   const [isNotified, setIsNotified] = useState(false);
   const [isAdding,   setIsAdding]   = useState(false);
 
+  const [imgError, setImgError] = useState(false);
+
   const hasDiscount =
     product.discountPrice != null &&
     product.discountPrice > 0 &&
@@ -98,12 +100,13 @@ export const ProductCard = ({ product, isRecommended = false, className }: Produ
     >
       {/* ── Image Area ───────────────────────────────────────── */}
       <div className="relative aspect-square bg-stone-50 overflow-hidden">
-        {product.image ? (
+        {product.image && !imgError ? (
           <img
             src={normalizeImageUrl(product.image)}
             alt={product.name}
             loading="lazy"
             className="w-full h-full object-contain p-4 mix-blend-multiply group-hover:scale-105 transition-transform duration-400 ease-out"
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

@@ -132,9 +132,12 @@ export default function CartPage() {
                 <Link href={`/products/${item.product._id}`} className="flex-shrink-0" aria-label={`View ${item.product.name}`}>
                   <div className="h-16 w-16 rounded-xl bg-stone-50 border border-stone-100 overflow-hidden flex items-center justify-center">
                     <img
-                      src={normalizeImageUrl(item.product.image) || "/placeholder.png"}
+                      src={normalizeImageUrl(item.product.image)}
                       alt={item.product.name}
                       className="h-full w-full object-contain p-1 mix-blend-multiply"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "/logo.png";
+                      }}
                     />
                   </div>
                 </Link>

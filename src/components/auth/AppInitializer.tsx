@@ -35,14 +35,16 @@ export default function AppInitializer({
     const syncCart = () => {
       fetchCart();
     };
-    window.addEventListener("focus", syncCart);
-    document.addEventListener("visibilitychange", () => {
+    const handleVisibility = () => {
       if (document.visibilityState === "visible") {
         syncCart();
       }
-    });
+    };
+    window.addEventListener("focus", syncCart);
+    document.addEventListener("visibilitychange", handleVisibility);
     return () => {
       window.removeEventListener("focus", syncCart);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [accessToken, fetchCart]);
 

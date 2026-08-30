@@ -63,7 +63,7 @@ export default function SettingsPage() {
 
   const fetchAddresses = async () => {
     try {
-      const response = await api.get("/User/addresses");
+      const response = await api.get("/users/addresses");
       setAddresses(response.data);
     } catch (error) {
       toast.error("Failed to load addresses.");
@@ -73,7 +73,7 @@ export default function SettingsPage() {
   async function handleAddAddress(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await api.post("/User/address", newAddress);
+      await api.post("/users/address", newAddress);
       toast.success("Address added successfully!");
       setIsAddModalOpen(false);
       setNewAddress({
@@ -92,7 +92,7 @@ export default function SettingsPage() {
 
   async function handleSetDefaultAddress(id: string) {
     try {
-      await api.put(`/User/address/${id}/set-default`);
+      await api.put(`/users/address/${id}/set-default`);
       toast.success("Default address updated!");
       fetchAddresses();
     } catch (error) {

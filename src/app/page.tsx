@@ -100,13 +100,25 @@ export default function Home() {
       try {
         setIsLoading(true);
 
-        api.get("/Categories")
-          .then((res) => setCategories(res.data?.slice(0, 7) || []))
-          .catch(() => console.warn("No categories found."));
+        // Parallel requests — await both before clearing the loading state
+        const [categoriesResult, productsResult] = await Promise.allSettled([
+          api.get("/categories"),
+          api.get("/products/top"),
+        ]);
 
-        api.get("/products/top")
-          .then((res) => setFeaturedProducts(res.data?.data || res.data || []))
-          .catch(() => console.warn("No products found."));
+        if (categoriesResult.status === "fulfilled") {
+          setCategories(categoriesResult.value.data?.slice(0, 7) || []);
+        } else {
+          console.warn("No categories found.");
+        }
+
+        if (productsResult.status === "fulfilled") {
+          setFeaturedProducts(
+            productsResult.value.data?.data || productsResult.value.data || []
+          );
+        } else {
+          console.warn("No products found.");
+        }
       } catch {
         toast.error("Failed to load some home page data.");
       } finally {
