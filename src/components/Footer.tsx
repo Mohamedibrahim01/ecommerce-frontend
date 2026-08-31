@@ -40,11 +40,11 @@ export const Footer = () => {
 
           {/* Brand column — takes 2 cols on lg */}
           <div className="lg:col-span-2 space-y-5">
-            <Link href="/" className="inline-flex items-center gap-2.5 group" aria-label="SH Supplements home">
+            <Link href="/" className="inline-flex items-center gap-2.5 group" aria-label="PeakSupps home">
               <div className="relative flex items-center justify-center">
                 <Image
                   src="/logo.png"
-                  alt="SH Supplements Logo"
+                  alt="PeakSupps Logo"
                   width={36}
                   height={36}
                   style={{ width: "auto" }}
@@ -144,7 +144,7 @@ export const Footer = () => {
 
         {/* Bottom bar */}
         <div className="mt-8 pt-6 border-t border-stone-800 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-stone-500">
-          <p>© {new Date().getFullYear()} SH Supplements. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} PeakSupps. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <span className="hover:text-stone-300 cursor-pointer transition-colors">Privacy Policy</span>
             <span className="text-stone-700">·</span>

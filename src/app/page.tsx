@@ -438,7 +438,7 @@ export default function Home() {
                 Ready to reach your goals?
               </h2>
               <p className="text-emerald-100 text-base max-w-md">
-                Join thousands of athletes who trust SH Supplements for clinically precise nutrition.
+                Join thousands of athletes who trust PeakSupps for clinically precise nutrition.
               </p>
             </div>
             <Button

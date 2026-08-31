@@ -221,12 +221,12 @@ export default function Navbar() {
           <Link
             href="/"
             className="flex items-center gap-2.5 sm:gap-3 group flex-shrink-0"
-            aria-label="SH Supplements home"
+            aria-label="PeakSupps home"
           >
             <div className="relative flex items-center justify-center flex-shrink-0">
               <Image
                 src="/logo.png"
-                alt="SH Supplements Logo"
+                alt="PeakSupps Logo"
                 width={48}
                 height={48}
                 style={{ width: "auto" }}
@@ -453,7 +453,7 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <Image
               src="/logo.png"
-              alt="SH Supplements Logo"
+              alt="PeakSupps Logo"
               width={40}
               height={40}
               style={{ width: "auto" }}
@@ -461,7 +461,7 @@ export default function Navbar() {
               unoptimized
             />
             <span className="font-extrabold text-white text-base sm:text-lg">
-              SH<span className="text-emerald-400">Supplements</span>
+              Peak<span className="text-emerald-400">Supps</span>
             </span>
           </div>
           <Button

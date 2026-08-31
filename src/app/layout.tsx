@@ -16,11 +16,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "SH Supplements — Premium Performance Nutrition",
-    template: "%s | SH Supplements",
+    default: "PeakSupps — Premium Performance Nutrition",
+    template: "%s | PeakSupps",
   },
   description:
-    "Discover clinically formulated whey protein, creatine, vitamins, pre-workout and mass gainers. SH Supplements — precision nutrition for peak performance.",
+    "Discover clinically formulated whey protein, creatine, vitamins, pre-workout and mass gainers. PeakSupps — precision nutrition for peak performance.",
   keywords: [
     "supplements",
     "whey protein",
@@ -31,20 +31,20 @@ export const metadata: Metadata = {
     "sports nutrition",
     "performance nutrition",
   ],
-  authors: [{ name: "SH Supplements" }],
-  creator: "SH Supplements",
+  authors: [{ name: "PeakSupps" }],
+  creator: "PeakSupps",
   metadataBase: new URL("https://sh-supplements.runasp.net"),
   openGraph: {
-    title: "SH Supplements — Premium Performance Nutrition",
+    title: "PeakSupps — Premium Performance Nutrition",
     description:
       "Precision nutrition for peak performance. Shop whey protein, creatine, vitamins, pre-workout and more.",
     type: "website",
     locale: "en_US",
-    siteName: "SH Supplements",
+    siteName: "PeakSupps",
   },
   twitter: {
     card: "summary_large_image",
-    title: "SH Supplements — Premium Performance Nutrition",
+    title: "PeakSupps — Premium Performance Nutrition",
     description: "Precision nutrition for peak performance.",
   },
   robots: {
