@@ -1,6 +1,6 @@
-#  SH-Supplements - Premium Supplement E-Commerce Platform
+#  PeakSupps - Premium Supplement E-Commerce Platform
 
-**SH-Supplements** is a comprehensive and advanced e-commerce platform dedicated to selling nutritional supplements and tracking the health progress of athletes. The platform is built using the latest technologies to ensure exceptional performance and a seamless, modern user experience (Clean UI).
+**PeakSupps** is a comprehensive and advanced e-commerce platform dedicated to selling nutritional supplements and tracking the health progress of athletes. The platform is built using the latest technologies to ensure exceptional performance and a seamless, modern user experience (Clean UI).
 
 ---
 

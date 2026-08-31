@@ -159,7 +159,7 @@ export default function AdminDashboardPage() {
       {/* Page Header */}
       <PageHeader
         title="Dashboard Overview"
-        subtitle="Real-time performance metrics and business statistics for SH-Supplements."
+        subtitle="Real-time performance metrics and business statistics for PeakSupps."
       >
         <Button
           type="button"

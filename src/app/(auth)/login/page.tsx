@@ -201,7 +201,7 @@ export default function Login() {
         <div className="relative z-10 flex items-center gap-3">
           <Image
             src="/logo.png"
-            alt="SH Supplements Logo"
+            alt="PeakSupps Logo"
             width={40}
             height={40}
             className="h-10 w-auto object-contain"
@@ -242,7 +242,7 @@ export default function Login() {
         </div>
 
         {/* Bottom */}
-        <p className="relative z-10 text-xs text-stone-600">© {new Date().getFullYear()} SH Supplements</p>
+        <p className="relative z-10 text-xs text-stone-600">© {new Date().getFullYear()} PeakSupps</p>
       </div>
 
       {/* ── Right — Form Panel ────────────────────────────────────────── */}
@@ -253,7 +253,7 @@ export default function Login() {
           <div className="flex items-center justify-center gap-2.5 mb-6">
             <Image
               src="/logo.png"
-              alt="SH Supplements Logo"
+              alt="PeakSupps Logo"
               width={44}
               height={44}
               className="h-10 sm:h-11 w-auto object-contain"

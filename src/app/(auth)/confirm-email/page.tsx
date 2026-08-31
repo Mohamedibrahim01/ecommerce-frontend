@@ -113,7 +113,7 @@ function ConfirmEmailContent() {
           <div className="flex items-center justify-center gap-2.5 mb-4">
             <Image
               src="/logo.png"
-              alt="SH Supplements Logo"
+              alt="PeakSupps Logo"
               width={36}
               height={36}
               className="h-8 sm:h-9 w-auto object-contain"
