@@ -4,11 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  Clock,
-  ShoppingCart,
   Truck,
   ShieldCheck,
-  Zap,
   Leaf,
   FlaskConical,
   Package,
@@ -20,11 +17,9 @@ import {
 } from "lucide-react";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { useEffect, useState } from "react";
-import { api } from "@/src/components/auth/axiosInstance";
-import { toast } from "sonner";
+import { useState } from "react";
 import { ProductCard } from "@/src/components/products/ProductCard";
-import { cn, formatPrice, normalizeImageUrl, getCategoryImageUrl } from "@/src/lib/utils";
+import { cn, getCategoryImageUrl } from "@/src/lib/utils";
 import { useCartStore } from "@/src/components/store/cartStore";
 import { useAuthStore } from "@/src/components/store/authStore";
 import { useRouter } from "next/navigation";
@@ -93,40 +88,6 @@ export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // ── Data fetching (logic unchanged) ──────────────────────────────────────
-  useEffect(() => {
-    const fetchHomeData = async () => {
-      try {
-        setIsLoading(true);
-
-        // Parallel requests — await both before clearing the loading state
-        const [categoriesResult, productsResult] = await Promise.allSettled([
-          api.get("/categories"),
-          api.get("/products/top"),
-        ]);
-
-        if (categoriesResult.status === "fulfilled") {
-          setCategories(categoriesResult.value.data?.slice(0, 7) || []);
-        } else {
-          console.warn("No categories found.");
-        }
-
-        if (productsResult.status === "fulfilled") {
-          setFeaturedProducts(
-            productsResult.value.data?.data || productsResult.value.data || []
-          );
-        } else {
-          console.warn("No products found.");
-        }
-      } catch {
-        toast.error("Failed to load some home page data.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchHomeData();
-  }, []);
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "short" });
@@ -295,88 +256,88 @@ export default function Home() {
       {/* 3. CATEGORIES                                                      */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {categories.length > 0 && (
-  <section className="container-xl py-12" aria-label="Shop by category">
-    <div className="flex items-end justify-between mb-7">
-      <div>
-        <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">
-          Collections
-        </p>
-        <h2 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">
-          Shop by Category
-        </h2>
-      </div>
-    </div>
-
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {categories.slice(0, 3).map((category, index) => {
-        const Icon = getCategoryIcon(category.name);
-        const imageUrl = getCategoryImageUrl(category.name, index);
-        return (
-          <Link
-            key={category.id}
-            href={`/categories/${category.id}`}
-            className={cn(
-              "relative rounded-3xl overflow-hidden group block cursor-pointer",
-              "border border-stone-200/80 shadow-md hover:shadow-xl hover:-translate-y-1",
-              "transition-all duration-500 flex flex-col justify-end min-h-[260px] sm:min-h-[300px]"
-            )}
-            aria-label={`Browse ${category.name}`}
-          >
-            {/* Background Image with slight zoom on hover */}
-            <div className="absolute inset-0 z-0 overflow-hidden bg-stone-900">
-              <Image
-                src={imageUrl}
-                alt={category.name}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
-              />
-              {/* Soft dark gradient overlay for text readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
+        <section className="container-xl py-12" aria-label="Shop by category">
+          <div className="flex items-end justify-between mb-7">
+            <div>
+              <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">
+                Collections
+              </p>
+              <h2 className="text-2xl md:text-3xl font-black text-stone-900 tracking-tight">
+                Shop by Category
+              </h2>
             </div>
+          </div>
 
-            {/* Top Badge / Icon */}
-            <div className="absolute top-5 left-5 z-10">
-              <div className="h-11 w-11 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:bg-emerald-600 group-hover:border-emerald-500 transition-all duration-300 shadow-sm">
-                <Icon
-                  className="h-5 w-5 text-white transition-colors duration-300"
-                  aria-hidden="true"
-                />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categories.slice(0, 3).map((category, index) => {
+              const Icon = getCategoryIcon(category.name);
+              const imageUrl = getCategoryImageUrl(category.name, index);
+              return (
+                <Link
+                  key={category.id}
+                  href={`/categories/${category.id}`}
+                  className={cn(
+                    "relative rounded-3xl overflow-hidden group block cursor-pointer",
+                    "border border-stone-200/80 shadow-md hover:shadow-xl hover:-translate-y-1",
+                    "transition-all duration-500 flex flex-col justify-end min-h-[260px] sm:min-h-[300px]"
+                  )}
+                  aria-label={`Browse ${category.name}`}
+                >
+                  {/* Background Image with slight zoom on hover */}
+                  <div className="absolute inset-0 z-0 overflow-hidden bg-stone-900">
+                    <Image
+                      src={imageUrl}
+                      alt={category.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
+                    />
+                    {/* Soft dark gradient overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
+                  </div>
 
-            {/* Content */}
-            <div className="relative z-10 p-6 flex items-end justify-between gap-3">
-              <div className="min-w-0">
-                <h3 className="text-xl font-black text-white mb-1 tracking-tight group-hover:text-emerald-300 transition-colors duration-300">
-                  {category.name}
-                </h3>
-                <p className="text-xs font-medium text-stone-200/90 line-clamp-2 leading-relaxed">
-                  {category.description || `Explore our premium ${category.name} collection.`}
-                </p>
-              </div>
-              <div className="h-9 w-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 group-hover:bg-emerald-600 group-hover:border-emerald-600 flex items-center justify-center transition-all duration-300 flex-shrink-0 shadow-sm group-hover:scale-105">
-                <ArrowRight
-                  className="h-4 w-4 text-white transition-transform duration-300 group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              </div>
-            </div>
-          </Link>
-        );
-      })}
-    </div>
+                  {/* Top Badge / Icon */}
+                  <div className="absolute top-5 left-5 z-10">
+                    <div className="h-11 w-11 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center group-hover:bg-emerald-600 group-hover:border-emerald-500 transition-all duration-300 shadow-sm">
+                      <Icon
+                        className="h-5 w-5 text-white transition-colors duration-300"
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </div>
 
-    {/* Bottom CTA button → dedicated categories page */}
-    <div className="mt-8 flex justify-center">
-      <Button asChild variant="outline" size="lg" className="rounded-xl font-bold">
-        <Link href="/categories" aria-label="View all categories">
-          View All Categories <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
-      </Button>
-    </div>
-  </section>
-)}
+                  {/* Content */}
+                  <div className="relative z-10 p-6 flex items-end justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="text-xl font-black text-white mb-1 tracking-tight group-hover:text-emerald-300 transition-colors duration-300">
+                        {category.name}
+                      </h3>
+                      <p className="text-xs font-medium text-stone-200/90 line-clamp-2 leading-relaxed">
+                        {category.description || `Explore our premium ${category.name} collection.`}
+                      </p>
+                    </div>
+                    <div className="h-9 w-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 group-hover:bg-emerald-600 group-hover:border-emerald-600 flex items-center justify-center transition-all duration-300 flex-shrink-0 shadow-sm group-hover:scale-105">
+                      <ArrowRight
+                        className="h-4 w-4 text-white transition-transform duration-300 group-hover:translate-x-0.5"
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Bottom CTA button → dedicated categories page */}
+          <div className="mt-8 flex justify-center">
+            <Button asChild variant="outline" size="lg" className="rounded-xl font-bold">
+              <Link href="/categories" aria-label="View all categories">
+                View All Categories <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {/* 4. FEATURED PRODUCTS                                               */}
