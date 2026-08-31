@@ -9,8 +9,8 @@ import { api } from "@/src/components/auth/axiosInstance";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardContent } from "@/src/components/ui/card";
 
-const CONFIRM_EMAIL_BASE_URL =
-  "http://localhost:5000/api/v1/auth/confirm-email";
+// Relative path — routed through the axios instance (picks up NEXT_PUBLIC_API_URL automatically)
+const CONFIRM_EMAIL_BASE_URL = "/auth/confirm-email";
 
 interface ConfirmEmailResponse {
   message?: string;
