@@ -112,9 +112,17 @@ export const useAuthStore = create<AuthState>()(
               ? roles
               : extractRolesFromToken(token);
           set({ accessToken: token, roles: finalRoles, user, isLoading: false });
-        } catch {
-          // No valid refresh cookie — clear stored token silently (no toast)
-          set({ accessToken: null, user: null, roles: [], isLoading: false });
+        } catch (err: unknown) {
+          const isNetworkError = !( err && typeof err === "object" && "response" in err && (err as { response?: unknown }).response);
+          if (isNetworkError) {
+            // Server is unreachable (cold start, offline, etc.) — preserve the existing
+            // stored token so the user isn't kicked out just because the server is sleeping.
+            set({ isLoading: false });
+          } else {
+            // Server responded with 4xx/5xx — the refresh cookie is missing or invalid.
+            // Clear auth state silently (no toast — this is expected when not logged in).
+            set({ accessToken: null, user: null, roles: [], isLoading: false });
+          }
         }
       },
 

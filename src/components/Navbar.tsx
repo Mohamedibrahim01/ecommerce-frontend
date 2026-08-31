@@ -225,11 +225,12 @@ export default function Navbar() {
           >
             <div className="relative flex items-center justify-center flex-shrink-0">
               <Image
-                src="/logo.png?v=2"
+                src="/logo.png"
                 alt="SH Supplements Logo"
-                width={46}
-                height={46}
-                className="h-10 sm:h-11 md:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+                width={48}
+                height={48}
+                style={{ width: "auto" }}
+                className="h-10 sm:h-11 md:h-12 object-contain transition-transform duration-200 group-hover:scale-105"
                 priority
                 unoptimized
               />
@@ -451,11 +452,12 @@ export default function Navbar() {
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
             <Image
-              src="/logo.png?v=2"
+              src="/logo.png"
               alt="SH Supplements Logo"
               width={40}
               height={40}
-              className="h-9 w-auto object-contain"
+              style={{ width: "auto" }}
+              className="h-9 object-contain"
               unoptimized
             />
             <span className="font-extrabold text-white text-base sm:text-lg">

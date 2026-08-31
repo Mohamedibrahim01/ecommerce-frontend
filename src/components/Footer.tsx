@@ -43,11 +43,12 @@ export const Footer = () => {
             <Link href="/" className="inline-flex items-center gap-2.5 group" aria-label="SH Supplements home">
               <div className="relative flex items-center justify-center">
                 <Image
-                  src="/logo.png?v=2"
+                  src="/logo.png"
                   alt="SH Supplements Logo"
                   width={36}
                   height={36}
-                  className="h-8 md:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+                  style={{ width: "auto" }}
+                  className="h-8 md:h-9 object-contain transition-transform duration-200 group-hover:scale-105"
                   unoptimized
                 />
               </div>
