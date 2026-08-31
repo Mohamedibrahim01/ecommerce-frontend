@@ -27,7 +27,7 @@ import { Button } from "@/src/components/ui/button";
 import { cn, normalizeImageUrl } from "@/src/lib/utils";
 import { useCartStore } from "@/src/components/store/cartStore";
 import { useAuthStore } from "@/src/components/store/authStore";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api, setIntentionalLogout } from "@/src/components/auth/axiosInstance";
 
 const NAV_ITEMS = [
   { name: "Home", href: "/", icon: Home },
@@ -204,6 +204,7 @@ export default function Navbar() {
 
   // Existing Log Out logic relocated
   async function handleLogOut() {
+    setIntentionalLogout(true);
     try {
       // Use relative path so axios instance adds withCredentials + Authorization header
       await api.post("/auth/logout");
@@ -212,6 +213,7 @@ export default function Navbar() {
       console.error("Logout error", error);
     } finally {
       useAuthStore.getState().logout();
+      setIntentionalLogout(false);
       router.replace("/");
     }
   }
