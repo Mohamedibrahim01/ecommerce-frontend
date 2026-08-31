@@ -17,7 +17,9 @@ import {
 } from "lucide-react";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { api } from "@/src/components/auth/axiosInstance";
+import { toast } from "sonner";
 import { ProductCard } from "@/src/components/products/ProductCard";
 import { cn, getCategoryImageUrl } from "@/src/lib/utils";
 import { useCartStore } from "@/src/components/store/cartStore";
@@ -88,6 +90,45 @@ export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // ── Data fetching ──────────────────────────────────────
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        setIsLoading(true);
+
+        // Fetch categories and products (max 8)
+        const [categoriesResult, productsResult] = await Promise.allSettled([
+          api.get("/categories"),
+          api.get("/products?limit=8"),
+        ]);
+
+        if (categoriesResult.status === "fulfilled") {
+          const data = categoriesResult.value.data?.data || categoriesResult.value.data;
+          if (Array.isArray(data)) {
+            setCategories(data.slice(0, 7));
+          }
+        } else {
+          console.warn("No categories found.");
+        }
+
+        if (productsResult.status === "fulfilled") {
+          const data = productsResult.value.data?.data || productsResult.value.data;
+          if (Array.isArray(data)) {
+            setFeaturedProducts(data.slice(0, 8));
+          }
+        } else {
+          console.warn("No products found.");
+        }
+      } catch (err) {
+        console.error("Home data fetch error:", err);
+        toast.error("Failed to load some home page data.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchHomeData();
+  }, []);
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "short" });
