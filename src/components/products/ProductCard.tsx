@@ -100,19 +100,21 @@ export const ProductCard = ({ product, isRecommended = false, className }: Produ
     >
       {/* ── Image Area ───────────────────────────────────────── */}
       <div className="relative aspect-square bg-stone-50 overflow-hidden">
-        {product.image && !imgError ? (
-          <img
-            src={normalizeImageUrl(product.image)}
-            alt={product.name}
-            loading="lazy"
-            className="w-full h-full object-contain p-4 mix-blend-multiply group-hover:scale-105 transition-transform duration-400 ease-out"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Package className="h-12 w-12 text-stone-200" aria-hidden="true" />
-          </div>
-        )}
+        <Link href={`/products/${productId}`} className="contents">
+          {product.image && !imgError ? (
+            <img
+              src={normalizeImageUrl(product.image)}
+              alt={product.name}
+              loading="lazy"
+              className="w-full h-full object-contain p-4 mix-blend-multiply group-hover:scale-105 transition-transform duration-400 ease-out"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Package className="h-12 w-12 text-stone-200" aria-hidden="true" />
+            </div>
+          )}
+        </Link>
 
         {/* Badges */}
         <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
@@ -175,9 +177,11 @@ export const ProductCard = ({ product, isRecommended = false, className }: Produ
         </div>
 
         {/* Name */}
-        <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug min-h-[2.5rem]">
-          {product.name}
-        </h3>
+        <Link href={`/products/${productId}`} className="group/title">
+          <h3 className="text-sm font-semibold text-stone-900 line-clamp-2 leading-snug min-h-[2.5rem] group-hover/title:text-emerald-600 transition-colors">
+            {product.name}
+          </h3>
+        </Link>
 
         {/* Rating */}
         {product.rating !== undefined && (
