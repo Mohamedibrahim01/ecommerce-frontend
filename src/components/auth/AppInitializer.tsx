@@ -23,15 +23,16 @@ export default function AppInitializer({
   }, [checkRefresh]);
 
   useEffect(() => {
+    if (isLoading) return;
     if (accessToken) {
       fetchCart();
     } else {
       clearCart();
     }
-  }, [accessToken, fetchCart, clearCart]);
+  }, [accessToken, fetchCart, clearCart, isLoading]);
 
   useEffect(() => {
-    if (!accessToken) return;
+    if (isLoading || !accessToken) return;
     const syncCart = () => {
       fetchCart();
     };
