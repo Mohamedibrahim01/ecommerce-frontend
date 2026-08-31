@@ -39,7 +39,7 @@ function VerifyEmailContent() {
               priority
             />
             <span className="font-extrabold text-stone-900 text-base sm:text-lg tracking-tight">
-              SH<span className="text-emerald-600">Supplements</span>
+              PEAK<span className="text-emerald-600">SUPPS</span>
             </span>
           </div>
 

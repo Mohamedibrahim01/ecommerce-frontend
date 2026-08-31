@@ -282,9 +282,7 @@ export default function Register() {
             priority
           />
           <div>
-            <span className="font-bold text-white text-sm">
-              SH<span className="text-emerald-400">Supplements</span>
-            </span>
+            <span className="font-bold text-white text-sm">PEAK<span className="text-emerald-400">SUPPS</span></span>
             <p className="text-[10px] text-stone-500 uppercase tracking-widest font-medium">
               Premium Nutrition
             </p>
@@ -343,7 +341,7 @@ export default function Register() {
               priority
             />
             <span className="font-extrabold text-stone-900 text-lg sm:text-xl tracking-tight">
-              SH<span className="text-emerald-600">Supplements</span>
+              PEAK<span className="text-emerald-600">SUPPS</span>
             </span>
           </div>
 

@@ -89,7 +89,7 @@ export function AdminSidebar({
             {!isCollapsed && (
               <div className="flex flex-col truncate">
                 <span className="font-extrabold text-white text-base leading-none tracking-tight">
-                  SH<span className="text-emerald-400">Admin</span>
+                  PEAK<span className="text-emerald-400">ADMIN</span>
                 </span>
                 <span className="text-[10px] font-bold text-stone-500 uppercase tracking-widest mt-0.5">
                   Dashboard

@@ -54,7 +54,7 @@ export const Footer = () => {
               </div>
               <div className="flex flex-col leading-none">
                 <span className="font-bold text-white text-sm tracking-tight">
-                  SH<span className="text-emerald-400">Supplements</span>
+                  PEAK<span className="text-emerald-400">SUPPS</span>
                 </span>
                 <span className="text-[10px] text-stone-500 font-medium tracking-widest uppercase">
                   Premium Nutrition

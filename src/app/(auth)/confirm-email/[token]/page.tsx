@@ -51,8 +51,8 @@ function getErrorMessage(errorData: unknown) {
     const data = errorData as ConfirmEmailErrorResponse;
     const fieldError = data.errors
       ? Object.values(data.errors)
-          .map((value) => (Array.isArray(value) ? value[0] : value))
-          .find(Boolean)
+        .map((value) => (Array.isArray(value) ? value[0] : value))
+        .find(Boolean)
       : null;
 
     return (
@@ -108,8 +108,8 @@ export default function ConfirmEmailTokenPage() {
         };
         const errorMessage =
           err.response?.status === 400 ||
-          err.response?.status === 404 ||
-          err.response?.status === 500
+            err.response?.status === 404 ||
+            err.response?.status === 500
             ? getErrorMessage(err.response?.data)
             : err.message || "We could not confirm your email right now.";
 
@@ -150,7 +150,7 @@ export default function ConfirmEmailTokenPage() {
               priority
             />
             <span className="font-extrabold text-stone-900 text-base sm:text-lg tracking-tight">
-              SH<span className="text-emerald-600">Supplements</span>
+              PEAK<span className="text-emerald-600">SUPPS</span>
             </span>
           </div>
 

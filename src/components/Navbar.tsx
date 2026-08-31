@@ -237,7 +237,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-extrabold text-stone-900 text-base sm:text-lg md:text-xl tracking-tight">
-                SH<span className="text-emerald-600">Supplements</span>
+                PEAK<span className="text-emerald-600">SUPPS</span>
               </span>
               <span className="text-[10px] sm:text-xs text-stone-400 font-bold tracking-widest uppercase mt-0.5">
                 Premium Nutrition
@@ -461,7 +461,7 @@ export default function Navbar() {
               unoptimized
             />
             <span className="font-extrabold text-white text-base sm:text-lg">
-              Peak<span className="text-emerald-400">Supps</span>
+              PEAK<span className="text-emerald-400">SUPPS</span>
             </span>
           </div>
           <Button
