@@ -7,22 +7,15 @@ import {
   LayoutDashboard,
   Package,
   Layers,
-  Tag,
   ShoppingBag,
-  Ticket,
   LogOut,
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
   Users,
-  Boxes,
-  RotateCcw,
-  HeartPulse,
-  Zap,
-  KeyRound,
-  Award,
 } from "lucide-react";
 import { useAuthStore } from "@/src/components/store/authStore";
+import { setIntentionalLogout } from "@/src/components/auth/axiosInstance";
 import { cn } from "@/src/lib/utils";
 import { toast } from "sonner";
 
@@ -51,8 +44,13 @@ export function AdminSidebar({
   const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    setIntentionalLogout(true);
+    try {
+      await logout();
+    } finally {
+      setIntentionalLogout(false);
+    }
     toast.success("Logged out from Admin area");
     router.push("/login");
   };

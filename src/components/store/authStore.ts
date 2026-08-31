@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import axios from "axios";
 import { api } from "../auth/axiosInstance";
 
 
@@ -96,8 +97,10 @@ export const useAuthStore = create<AuthState>()(
       },
       checkRefresh: async () => {
         try {
-          const response = await api.post(
-            "/auth/refresh-token",
+          // Use raw axios (NOT the intercepted `api` instance) to avoid interceptor recursion.
+          // The /auth/refresh-token endpoint is also in SILENT_ENDPOINTS as a second safeguard.
+          const response = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
             {},
             { withCredentials: true },
           );
@@ -110,6 +113,7 @@ export const useAuthStore = create<AuthState>()(
               : extractRolesFromToken(token);
           set({ accessToken: token, roles: finalRoles, user, isLoading: false });
         } catch {
+          // No valid refresh cookie — clear stored token silently (no toast)
           set({ accessToken: null, user: null, roles: [], isLoading: false });
         }
       },

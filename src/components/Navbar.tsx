@@ -11,17 +11,12 @@ import {
   X,
   Home,
   Grid,
-  Calculator,
   User,
-  TrendingUp,
   ShoppingBag,
-  Zap,
   Settings,
-  BadgeCheck,
   LogOut,
   ShoppingBasket,
   ShieldCheck,
-  ChevronDown
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { cn, normalizeImageUrl } from "@/src/lib/utils";
@@ -118,39 +113,14 @@ export default function Navbar() {
   const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState<{
-    firstName?: string;
-    lastName?: string;
-    profileImageUrl?: string;
-    ProfileImageUrl?: string;
-  } | null>(null);
+  // Read user name directly from the persisted auth store (no extra API call needed)
+  const authUser = useAuthStore((state) => state.user);
+  const userName = (authUser as any)?.name || (authUser as any)?.firstName || "Account";
+  const userAvatar = (authUser as any)?.avatar || (authUser as any)?.profileImageUrl || null;
+
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Categories Dropdown State
-  const [categories, setCategories] = useState<any[]>([]);
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-  const categoriesDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Fetch Categories
-  useEffect(() => {
-    api.get("/categories")
-      .then((res) => {
-        setCategories(res.data?.data || res.data || []);
-      })
-      .catch((err) => console.error("Failed to load categories", err));
-  }, []);
-
-  // Fetch user profile when logged in
-  useEffect(() => {
-    if (accessToken) {
-      api
-        .get("/users/profile")
-        .then((res) => setUserProfile(res.data))
-        .catch(() => { });
-    } else {
-      setUserProfile(null);
-    }
-  }, [accessToken]);
+  // User profile is read from authStore — no separate fetch needed
 
   // Profile dropdown click outside and keyboard navigation
   useEffect(() => {
@@ -171,24 +141,7 @@ export default function Navbar() {
     };
   }, [isProfileOpen]);
 
-  // Categories dropdown click outside
-  useEffect(() => {
-    if (!isCategoriesOpen) return;
-    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
-      if (
-        categoriesDropdownRef.current &&
-        !categoriesDropdownRef.current.contains(e.target as Node)
-      ) {
-        setIsCategoriesOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("touchstart", handleOutsideClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      document.removeEventListener("touchstart", handleOutsideClick);
-    };
-  }, [isCategoriesOpen]);
+
 
   // Logout modal Escape key support
   useEffect(() => {
@@ -291,60 +244,8 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Search & Categories */}
-          <div className="hidden md:flex flex-1 max-w-xl mx-6 items-center gap-4">
-            
-            {/* Categories Dropdown (Desktop) */}
-            <div className="relative" ref={categoriesDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsCategoriesOpen((prev) => !prev)}
-                className="flex items-center gap-2 h-11 px-4 bg-stone-100 hover:bg-stone-200 rounded-2xl font-bold text-stone-700 transition-colors whitespace-nowrap"
-              >
-                <Grid className="w-4 h-4 text-emerald-600" />
-                Categories
-                <ChevronDown className={cn("w-4 h-4 text-stone-400 transition-transform", isCategoriesOpen && "rotate-180")} />
-              </button>
-              
-              {isCategoriesOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-stone-100 py-3 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-4 pb-2 mb-2 border-b border-stone-100">
-                    <p className="font-black text-stone-900">Shop by Category</p>
-                  </div>
-                  <div className="max-h-[60vh] overflow-y-auto px-2 space-y-1">
-                    {categories.map((cat) => (
-                      <Link
-                        key={cat._id || cat.id}
-                        href={`/categories/${cat.slug || cat.id}`}
-                        onClick={() => setIsCategoriesOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-stone-50 transition-colors group"
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center overflow-hidden shrink-0">
-                          {cat.image ? (
-                            <img src={normalizeImageUrl(cat.image)} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <Grid className="w-4 h-4 text-stone-400 group-hover:text-emerald-500 transition-colors" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-sm text-stone-800 truncate group-hover:text-emerald-600 transition-colors">{cat.name}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                  <div className="px-3 pt-2 mt-2 border-t border-stone-100">
-                    <Link
-                      href="/categories"
-                      onClick={() => setIsCategoriesOpen(false)}
-                      className="block text-center text-sm font-bold text-emerald-600 hover:text-emerald-700 py-2 rounded-xl hover:bg-emerald-50 transition-colors"
-                    >
-                      View All Categories
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
+          {/* Desktop Search */}
+          <div className="hidden md:flex flex-1 max-w-2xl mx-6 items-center gap-3">
             {/* Search Bar */}
             <div className="flex-1">
               <Suspense fallback={<div className="w-full h-11 bg-stone-100 rounded-2xl animate-pulse" />}>
@@ -396,9 +297,9 @@ export default function Navbar() {
                 >
                   <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-500 p-[2px] flex items-center justify-center flex-shrink-0 shadow-sm">
                     <div className="h-full w-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                      {(userProfile?.profileImageUrl || userProfile?.ProfileImageUrl) ? (
+                      {userAvatar ? (
                         <img
-                          src={normalizeImageUrl(userProfile.profileImageUrl || userProfile.ProfileImageUrl || "")}
+                          src={normalizeImageUrl(userAvatar)}
                           alt="Profile avatar"
                           className="h-full w-full object-cover rounded-full aspect-square"
                         />
@@ -408,7 +309,7 @@ export default function Navbar() {
                     </div>
                   </div>
                   <span className="font-bold text-sm text-stone-800 max-w-[110px] truncate">
-                    {userProfile?.firstName || "Account"}
+                    {userName}
                   </span>
                 </button>
 
@@ -421,7 +322,7 @@ export default function Navbar() {
                   >
                     <div className="px-4 py-3 border-b border-stone-100 mb-1">
                       <p className="font-extrabold text-stone-900 text-sm truncate">
-                        {userProfile ? `${userProfile.firstName || ""} ${userProfile.lastName || ""}`.trim() || "My Account" : "My Account"}
+                        {userName}
                       </p>
                       <p className="text-xs text-stone-400 font-semibold mt-0.5">Verified Member</p>
                     </div>
@@ -641,9 +542,9 @@ export default function Navbar() {
                 onClick={() => setIsSidebarOpen(false)}
               >
                 <div className="h-10 w-10 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  {(userProfile?.profileImageUrl || userProfile?.ProfileImageUrl) ? (
+                  {userAvatar ? (
                     <img
-                      src={normalizeImageUrl(userProfile.profileImageUrl || userProfile.ProfileImageUrl || "")}
+                      src={normalizeImageUrl(userAvatar)}
                       alt="Profile avatar"
                       className="h-full w-full object-cover rounded-full aspect-square"
                     />
@@ -653,7 +554,7 @@ export default function Navbar() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-base font-bold text-white truncate">
-                    {userProfile ? `${userProfile.firstName || ""} ${userProfile.lastName || ""}`.trim() || "My Account" : "My Account"}
+                    {userName}
                   </p>
                   <p className="text-xs text-stone-400">View profile</p>
                 </div>
@@ -702,17 +603,17 @@ export default function Navbar() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col items-center text-center space-y-3">
-               <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 shadow-inner">
-                 <LogOut className="h-6 w-6" aria-hidden="true" />
-               </div>
-               <div className="space-y-1">
-                 <h3 id="logout-dialog-title" className="font-black text-stone-900 text-xl tracking-tight">
-                   Sign out?
-                 </h3>
-                 <p id="logout-dialog-description" className="text-stone-500 text-sm font-medium">
-                   Are you sure you want to sign out of your account?
-                 </p>
-               </div>
+              <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 shadow-inner">
+                <LogOut className="h-6 w-6" aria-hidden="true" />
+              </div>
+              <div className="space-y-1">
+                <h3 id="logout-dialog-title" className="font-black text-stone-900 text-xl tracking-tight">
+                  Sign out?
+                </h3>
+                <p id="logout-dialog-description" className="text-stone-500 text-sm font-medium">
+                  Are you sure you want to sign out of your account?
+                </p>
+              </div>
             </div>
 
             <div className="flex items-center gap-3 w-full pt-2">

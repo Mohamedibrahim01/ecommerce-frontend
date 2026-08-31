@@ -3,32 +3,26 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Leaf, ArrowUpRight, Share2, MessageCircle, Play } from "lucide-react";
+import { ArrowUpRight, Share2, MessageCircle, Play } from "lucide-react";
 
 const HIDDEN_ROUTES = ["/login", "/register", "/forgot-password"];
 
 const FOOTER_LINKS = {
   shop: [
-    { name: "All Products",    href: "/products" },
-    { name: "Categories",      href: "/categories" },
-    { name: "Flash Deals",     href: "/flash-sales" },
+    { name: "All Products", href: "/products" },
+    { name: "Categories", href: "/categories" },
   ],
   account: [
-    { name: "My Profile",  href: "/profile" },
-    { name: "My Orders",   href: "/orders" },
-    { name: "Settings",    href: "/settings" },
-  ],
-  tools: [
-    { name: "BMI Calculator", href: "/bmi" },
-    { name: "Progress Track", href: "/progress" },
-    { name: "Verify Product", href: "/verify" },
+    { name: "My Profile", href: "/profile" },
+    { name: "My Orders", href: "/orders" },
+    { name: "Settings", href: "/settings" },
   ],
 };
 
 const SOCIAL = [
-  { name: "Instagram", icon: Share2,        href: "#" },
-  { name: "Twitter",   icon: MessageCircle, href: "#" },
-  { name: "YouTube",   icon: Play,          href: "#" },
+  { name: "Instagram", icon: Share2, href: "#" },
+  { name: "Twitter", icon: MessageCircle, href: "#" },
+  { name: "YouTube", icon: Play, href: "#" },
 ];
 
 export const Footer = () => {
@@ -88,9 +82,8 @@ export const Footer = () => {
 
           {/* Link columns */}
           {[
-            { title: "Shop",    links: FOOTER_LINKS.shop },
+            { title: "Shop", links: FOOTER_LINKS.shop },
             { title: "Account", links: FOOTER_LINKS.account },
-            { title: "Tools",   links: FOOTER_LINKS.tools },
           ].map(({ title, links }) => (
             <div key={title}>
               <h3 className="text-white text-xs font-bold uppercase tracking-widest mb-5">
