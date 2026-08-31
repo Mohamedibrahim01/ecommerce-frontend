@@ -55,11 +55,14 @@ export default function CategoryProductsPage() {
   const fetchProducts = async (catId: string, page: number) => {
     try {
       setIsProductsLoading(true);
-      const res = await api.get(`/Products`, {
-        params: { categoryId: catId, pageNumber: page, pageSize },
+      const res = await api.get(`/products`, {
+        params: { category: catId, pageNumber: page, limit: pageSize },
       });
-      setProducts(res.data);
-      setHasMore(res.data.length === pageSize);
+      // Backend envelope: { status, data: [...], page, pages, totalProducts }
+      const data = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : [];
+      const totalPages = res.data?.pages ?? (data.length < pageSize ? page : page + 1);
+      setProducts(data);
+      setHasMore(page < totalPages);
       setPageNumber(page);
     } catch (e) {
       console.error("Failed to load products", e);
@@ -135,7 +138,7 @@ export default function CategoryProductsPage() {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                   {products.map((p) => (
-                    <ProductCard key={p.id} product={p} />
+                    <ProductCard key={p._id} product={p} />
                   ))}
                 </div>
 
