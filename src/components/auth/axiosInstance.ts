@@ -76,7 +76,7 @@ api.interceptors.response.use(
         const newToken =
           res.data?.accessToken || res.data?.token || res.data?.data?.accessToken;
         if (newToken) {
-          useAuthStore.getState().login(newToken);
+          useAuthStore.getState().setToken(newToken);
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return api(originalRequest);
         }

@@ -5,7 +5,7 @@ import { useCartStore } from "@/src/components/store/cartStore";
 import { Button } from "@/src/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { OrderSummary } from "@/src/components/checkout/OrderSummary";
 import { Loader2, MapPin, Tag, CheckCircle2, Plus } from "lucide-react";
 
@@ -64,7 +64,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        const response = await api.get("/User/addresses");
+        const response = await api.get("/users/addresses");
         const fetchedAddresses: Address[] = Array.isArray(response.data)
           ? response.data
           : response.data?.addresses || [];

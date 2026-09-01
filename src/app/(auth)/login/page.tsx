@@ -16,7 +16,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { useState } from "react";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { toast } from "sonner";
 import { AuthUser, useAuthStore } from "@/src/components/store/authStore";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -127,27 +127,20 @@ export default function Login() {
         return;
       }
 
-      const response = await api.post<LoginResponsePayload>(
+      const response = await api.post<any>(
         LOGIN_ENDPOINT,
         payload,
       );
-      const data = response.data;
-      const responseData = data.data || {};
-      const token =
-        data.token ||
-        data.accessToken ||
-        data.authToken ||
-        responseData.token ||
-        responseData.accessToken ||
-        responseData.authToken;
+      
+      const responseData = response.data.data;
+      const token = responseData?.accessToken;
 
       if (!token) {
         throw new Error("Login succeeded, but no auth token was returned.");
       }
 
-      const roles = data.roles || responseData.roles;
-      const user = data.user || responseData.user || null;
-      loginStore(token, roles, user);
+      // Pass user object and token to store
+      loginStore(responseData, token);
       router.push(redirectTo as Route);
       toast.success("Welcome back!");
     } catch (error: unknown) {

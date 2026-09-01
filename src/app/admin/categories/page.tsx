@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Plus, Layers, Search, Image as ImageIcon, Edit2, Trash2 } from "lucide-react";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { PageHeader } from "@/src/components/admin/PageHeader";
 import { DataTable, Column } from "@/src/components/admin/DataTable";
 import { SearchBar } from "@/src/components/admin/SearchBar";
@@ -119,24 +119,29 @@ export default function AdminCategoriesPage() {
   const onSubmit = async (values: CategoryFormValues) => {
     setIsSubmitting(true);
     try {
-      const payload = {
-        name: values.name.trim(),
-        description: values.description?.trim() || null,
-        image: values.image?.trim() || null,
-      };
+      const formData = new FormData();
+      formData.append("name", values.name.trim());
+      if (values.description?.trim()) formData.append("description", values.description.trim());
+
+      const fileInput = document.getElementById("cat-img") as HTMLInputElement;
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        formData.append("image", fileInput.files[0]);
+      }
+
+      const headers = { "Content-Type": "multipart/form-data" };
+
       if (modalMode === "edit" && activeCategory) {
         const targetId = activeCategory._id || activeCategory.id;
-        await api.put(`/categories/${targetId}`, payload);
+        await api.put(`/categories/${targetId}`, formData, { headers });
         toast.success(`Category "${values.name}" updated successfully!`);
-        setCategories((prev) =>
-          prev.map((c) => ((c._id || c.id) === targetId ? { ...c, ...payload } : c))
-        );
+        fetchCategories();
       } else {
-        await api.post("/categories", payload);
+        await api.post("/categories", formData, { headers });
         toast.success(`Category "${values.name}" created successfully!`);
         fetchCategories();
       }
       reset();
+      if (fileInput) fileInput.value = "";
       setIsCreateModalOpen(false);
       setActiveCategory(null);
     } catch (err: any) {
@@ -326,18 +331,18 @@ export default function AdminCategoriesPage() {
 
           <Field>
             <Label htmlFor="cat-img" className="text-stone-700 font-bold text-xs uppercase tracking-wider">
-              Image URL
+              Category Image
             </Label>
             <div className="relative mt-1.5">
               <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
               <Input
                 id="cat-img"
-                {...register("image")}
-                placeholder="https://example.com/image.jpg"
-                className="pl-10 h-11 rounded-xl"
+                type="file"
+                accept="image/*"
+                className="pl-10 h-11 rounded-xl pt-2.5"
               />
             </div>
-            <FieldError errors={errors.image ? [{ message: errors.image.message }] : undefined} />
+            {modalMode === "edit" && <p className="text-xs text-stone-500 mt-1">Leave empty to keep existing image</p>}
           </Field>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-100">

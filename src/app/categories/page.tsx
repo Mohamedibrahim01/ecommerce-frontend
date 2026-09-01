@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { getCategoryImageUrl } from "@/src/lib/utils";
 import {
   Loader2,

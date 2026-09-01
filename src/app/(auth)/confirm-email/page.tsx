@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle2, XCircle, Loader2, ArrowRight, RefreshCw, Home } from "lucide-react";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardContent } from "@/src/components/ui/card";
 

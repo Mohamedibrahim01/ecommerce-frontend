@@ -11,7 +11,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { useState, use } from "react";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";

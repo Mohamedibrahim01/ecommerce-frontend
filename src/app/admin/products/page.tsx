@@ -15,7 +15,7 @@ import {
   Trash2,
   Copy,
 } from "lucide-react";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { PageHeader } from "@/src/components/admin/PageHeader";
 import { DataTable, Column } from "@/src/components/admin/DataTable";
 import { SearchBar } from "@/src/components/admin/SearchBar";
@@ -195,25 +195,31 @@ export default function AdminProductsPage() {
   const onSubmitProduct = async (values: ProductFormValues) => {
     setIsSubmitting(true);
     try {
-      const payload = {
-        name: values.name.trim(),
-        description: values.description?.trim() || "",
-        price: values.price,
-        countInStock: values.countInStock,
-        category: values.category,
-        image: values.image?.trim() || "",
-      };
+      const formData = new FormData();
+      formData.append("name", values.name.trim());
+      if (values.description?.trim()) formData.append("description", values.description.trim());
+      formData.append("price", values.price.toString());
+      formData.append("countInStock", values.countInStock.toString());
+      formData.append("category", values.category);
+      
+      const fileInput = document.getElementById("prod-img") as HTMLInputElement;
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        formData.append("image", fileInput.files[0]);
+      }
+
+      const headers = { "Content-Type": "multipart/form-data" };
 
       if (modalMode === "edit" && activeProduct) {
-        await api.put(`/products/${activeProduct._id}`, payload);
+        await api.put(`/products/${activeProduct._id}`, formData, { headers });
         toast.success(`Product "${values.name}" updated successfully!`);
       } else {
-        await api.post("/products", payload);
+        await api.post("/products", formData, { headers });
         toast.success(`Product "${values.name}" ${modalMode === "duplicate" ? "duplicated" : "created"} successfully!`);
       }
       
       fetchProducts(pageNumber); // Refresh
       reset();
+      if (fileInput) fileInput.value = "";
       setIsAddModalOpen(false);
       setActiveProduct(null);
     } catch (err: any) {
@@ -522,18 +528,18 @@ export default function AdminProductsPage() {
 
             <Field className="md:col-span-2">
               <Label htmlFor="prod-img" className="text-stone-700 font-bold text-xs uppercase tracking-wider">
-                Image URL
+                Product Image
               </Label>
               <div className="relative mt-1.5">
                 <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
                 <Input
                   id="prod-img"
-                  {...register("image")}
-                  placeholder="https://example.com/product-image.jpg"
-                  className="pl-10 h-11 rounded-xl"
+                  type="file"
+                  accept="image/*"
+                  className="pl-10 h-11 rounded-xl pt-2.5"
                 />
               </div>
-              <FieldError errors={errors.image ? [{ message: errors.image.message }] : undefined} />
+              {modalMode === "edit" && <p className="text-xs text-stone-500 mt-1">Leave empty to keep existing image</p>}
             </Field>
           </div>
 

@@ -1,89 +1,46 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import axios from "axios";
-import { api } from "../auth/axiosInstance";
+import { api, setAccessToken as setApiAccessToken } from "@/src/lib/api";
 
-
-export const ROLES = {
-  ADMIN: "Admin",
-  TRAINER: "Trainer",
-  MODERATOR: "Moderator",
-  SUPPORT: "Support",
-  CONTENT_MANAGER: "Content Manager",
-} as const;
-
-// Helper to extract role claims from JWT when API response roles are omitted
-function extractRolesFromToken(token: string | null): string[] {
-  if (!token) return [];
-  try {
-    const parts = token.split(".");
-    if (parts.length < 2) return [];
-    const base64Url = parts[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-    const payload = JSON.parse(jsonPayload);
-    const roleClaim =
-      payload.roles ||
-      payload.role ||
-      payload.Role ||
-      payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-
-    if (!roleClaim) return [];
-    if (Array.isArray(roleClaim)) return roleClaim.map(String);
-    if (typeof roleClaim === "string") return [roleClaim];
-    return [];
-  } catch {
-    return [];
-  }
-}
-
-// types
 export interface AuthUser {
-  _id?: string | number;
-  id?: string | number; // keeping for backwards compatibility if needed
-  name?: string;
-  email?: string;
+  _id: string;
+  name: string;
+  email: string;
   avatar?: string | null;
   isAdmin?: boolean;
-  isEmailConfirmed?: boolean;
-  createdAt?: string;
-  [key: string]: unknown;
 }
 
 interface AuthState {
-  accessToken: string | null;
   user: AuthUser | null;
-  roles: string[];
+  accessToken: string | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
 
-  login: (token: string, roles?: string[], user?: AuthUser | null) => void;
+  login: (user: AuthUser, token: string) => void;
+  register: (user: AuthUser, token: string) => void;
   logout: () => Promise<void>;
-  checkRefresh: () => Promise<void>;
+  setToken: (token: string | null) => void;
+  setIsLoading: (loading: boolean) => void;
   isAdmin: () => boolean;
-  hasRole: (role: string) => boolean;
+  checkRefresh: () => Promise<void>;
 }
 
-// store creation
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      accessToken: null,
       user: null,
-      roles: [],
-      isLoading: true,
+      accessToken: null,
+      isAuthenticated: false,
+      isLoading: false,
 
-      login: (token, roles, user = null) => {
-        // Primary source: response.data.roles. Fallback: extract from JWT
-        const finalRoles =
-          roles && Array.isArray(roles) && roles.length > 0
-            ? roles
-            : extractRolesFromToken(token);
-        set({ accessToken: token, roles: finalRoles, user, isLoading: false });
+      login: (user, token) => {
+        setApiAccessToken(token);
+        set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
+      },
+      
+      register: (user, token) => {
+        setApiAccessToken(token);
+        set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
       },
 
       logout: async () => {
@@ -92,64 +49,43 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           console.error("Logout error", error);
         } finally {
-          set({ accessToken: null, user: null, roles: [] });
+          setApiAccessToken(null);
+          set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
         }
       },
-      checkRefresh: async () => {
-        try {
-          // Use raw axios (NOT the intercepted `api` instance) to avoid interceptor recursion.
-          // The /auth/refresh-token endpoint is also in SILENT_ENDPOINTS as a second safeguard.
-          const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
-            {},
-            { withCredentials: true },
-          );
-          const token = response.data?.token || response.data?.accessToken || null;
-          const roles = response.data?.roles;
-          const user = response.data?.user || response.data?.data?.user || null;
-          const finalRoles =
-            roles && Array.isArray(roles) && roles.length > 0
-              ? roles
-              : extractRolesFromToken(token);
-          set({ accessToken: token, roles: finalRoles, user, isLoading: false });
-        } catch (err: unknown) {
-          const isNetworkError = !( err && typeof err === "object" && "response" in err && (err as { response?: unknown }).response);
-          if (isNetworkError) {
-            // Server is unreachable (cold start, offline, etc.) — preserve the existing
-            // stored token so the user isn't kicked out just because the server is sleeping.
-            set({ isLoading: false });
-          } else {
-            // Server responded with 4xx/5xx — the refresh cookie is missing or invalid.
-            // Clear auth state silently (no toast — this is expected when not logged in).
-            set({ accessToken: null, user: null, roles: [], isLoading: false });
-          }
-        }
+
+      setToken: (token) => {
+        setApiAccessToken(token);
+        set({ accessToken: token, isAuthenticated: !!token });
       },
+
+      setIsLoading: (isLoading) => set({ isLoading }),
 
       isAdmin: () => {
         const state = get();
-        return state.roles.some(
-          (r) =>
-            r.toLowerCase() === ROLES.ADMIN.toLowerCase() ||
-            r.toLowerCase() === "administrator"
-        );
+        return state.user?.isAdmin === true;
       },
 
-      hasRole: (role: string) => {
+      checkRefresh: async () => {
         const state = get();
-        return state.roles.some((r) => r.toLowerCase() === role.toLowerCase());
+        if (state.isAuthenticated && !state.accessToken) {
+          set({ isLoading: true });
+          try {
+            const res = await api.post("/auth/refresh-token");
+            const newAccessToken = res.data?.data?.accessToken || res.data?.accessToken;
+            setApiAccessToken(newAccessToken);
+            set({ accessToken: newAccessToken, isLoading: false });
+          } catch (error) {
+            setApiAccessToken(null);
+            set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+          }
+        }
       },
     }),
     {
-      name: "sh-supplements-auth",
-      partialize: (state) => ({
-        accessToken: state.accessToken,
-        user: state.user,
-        roles: state.roles,
-      }),
-    },
-  ),
+      name: "ecommerce-auth",
+      // Only persist user data and auth flag, NOT the access token for security reasons.
+      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+    }
+  )
 );
-
-export const isAdmin = () => useAuthStore.getState().isAdmin();
-export const hasRole = (role: string) => useAuthStore.getState().hasRole(role);

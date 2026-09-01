@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { api } from "../auth/axiosInstance";
+import { api } from "@/src/lib/api";
 
 export interface CartProduct {
   _id: string;

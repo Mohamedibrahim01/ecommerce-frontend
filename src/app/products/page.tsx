@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, Suspense } from "react";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import {
@@ -10,6 +10,7 @@ import {
   Search,
   ChevronDown,
   Package,
+  Star,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/components/store/authStore";
@@ -67,6 +68,7 @@ function ProductsContent() {
   const urlCategory = searchParams.get("category") || "";
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [topProducts, setTopProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   
   const [pageNumber, setPageNumber] = useState(1);
@@ -100,6 +102,15 @@ function ProductsContent() {
         setCategories(res.data?.data || res.data || []);
       })
       .catch(() => console.warn("Failed to load categories"));
+  }, []);
+
+  // Fetch Top Products
+  useEffect(() => {
+    api.get("/products/top")
+      .then((res) => {
+        setTopProducts(res.data?.data || res.data || []);
+      })
+      .catch(() => console.warn("Failed to load top products"));
   }, []);
 
   // ── Data fetching ────────────────────────────────────────────────────────
@@ -205,6 +216,28 @@ function ProductsContent() {
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="container-xl py-8 space-y-10" dir="ltr">
+
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {/* TOP RATED PRODUCTS                                                */}
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+      {!searchQuery && !selectedCategoryId && topProducts.length > 0 && (
+        <section aria-label="Top rated products" className="mb-16">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center">
+              <Star className="h-5 w-5 text-amber-500 fill-amber-500" aria-hidden="true" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-stone-900 tracking-tight">Top Rated Picks</h2>
+              <p className="text-sm text-stone-500 mt-0.5">Highly recommended by our community</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+            {topProducts.map((product) => (
+              <ProductCard key={`top-${product._id}`} product={product as any} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {/* FULL CATALOG                                                       */}

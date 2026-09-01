@@ -12,7 +12,7 @@ import { Button } from "@/src/components/ui/button";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/src/components/store/authStore";
 import { useRouter } from "next/navigation";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { toast } from "sonner";
 import { formatPrice } from "@/src/lib/utils";
 import Link from "next/link";

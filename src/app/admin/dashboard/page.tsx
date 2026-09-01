@@ -17,7 +17,7 @@ import {
   ArrowRight,
   ExternalLink,
 } from "lucide-react";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { PageHeader } from "@/src/components/admin/PageHeader";
 import { StatCard } from "@/src/components/admin/StatCard";
 import { LoadingSkeleton } from "@/src/components/admin/LoadingSkeleton";
@@ -80,56 +80,66 @@ export default function AdminDashboardPage() {
     setError(null);
 
     try {
-      // 1. Fetch Dashboard statistics
-      const response = await api.get("/Dashboard/statistics");
-      const data = response.data || {};
+      // Fetch all required data concurrently
+      const [ordersRes, productsRes, usersRes] = await Promise.all([
+        api.get("/orders"),
+        api.get("/products", { params: { limit: 1000 } }), 
+        api.get("/users/all-users")
+      ]);
+
+      const ordersData = Array.isArray(ordersRes.data?.data) ? ordersRes.data.data : Array.isArray(ordersRes.data) ? ordersRes.data : [];
+      const productsData = Array.isArray(productsRes.data?.data) ? productsRes.data.data : Array.isArray(productsRes.data) ? productsRes.data : [];
+      const usersData = Array.isArray(usersRes.data?.data) ? usersRes.data.data : Array.isArray(usersRes.data) ? usersRes.data : [];
+
+      // Compute Total Revenue (paid orders)
+      const paidOrders = ordersData.filter((o: any) => o.isPaid);
+      const totalRevenue = paidOrders.reduce((sum: number, o: any) => sum + (o.totalPrice || 0), 0);
+
+      // Compute Pending Orders (not delivered, not cancelled)
+      const pendingOrdersCount = ordersData.filter((o: any) => !o.isDelivered && o.status !== "Cancelled").length;
+
+      // Compute Low Stock Products (countInStock <= 3)
+      const lowStockList = productsData
+        .filter((p: any) => p.countInStock <= 3)
+        .sort((a: any, b: any) => a.countInStock - b.countInStock);
 
       setStats({
-        totalUsers:
-          data.totalUsers ?? data.TotalUsers ?? data.usersCount ?? data.UsersCount ?? 0,
-        totalOrders:
-          data.totalOrders ?? data.TotalOrders ?? data.ordersCount ?? data.OrdersCount ?? 0,
-        totalRevenue:
-          data.totalRevenue ?? data.TotalRevenue ?? data.revenue ?? data.Revenue ?? 0,
-        pendingOrders:
-          data.pendingOrders ?? data.PendingOrders ?? data.pendingCount ?? data.PendingCount ?? 0,
-        lowStockProducts:
-          data.lowStockProducts ??
-          data.LowStockProducts ??
-          data.lowStockCount ??
-          data.LowStockCount ??
-          0,
+        totalUsers: usersData.length,
+        totalOrders: ordersData.length,
+        totalRevenue: totalRevenue,
+        pendingOrders: pendingOrdersCount,
+        lowStockProducts: lowStockList.length,
       });
 
-      // 2. Fetch Recent Orders strictly using GET /api/Orders/all?PageNumber=1&PageSize=5
-      try {
-        const ordersRes = await api.get("/Orders/all", {
-          params: { PageNumber: 1, PageSize: 5 },
-        });
-        const ordersData = Array.isArray(ordersRes.data)
-          ? ordersRes.data
-          : ordersRes.data.orders || ordersRes.data.data || [];
-        setRecentOrders(ordersData.slice(0, 5));
-      } catch (ordErr) {
-        console.warn("Could not load recent orders for dashboard:", ordErr);
-      }
+      // Recent Orders (latest 5)
+      const sortedOrders = [...ordersData].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      const mappedRecentOrders = sortedOrders.slice(0, 5).map((o: any) => {
+        let status = 1; // Pending
+        if (o.isDelivered) status = 4; // Delivered
+        else if (o.status === "Cancelled") status = 5; // Cancelled
+        
+        return {
+          id: o._id,
+          orderDate: o.createdAt,
+          status,
+          finalAmount: o.totalPrice,
+          customerName: o.user?.name || "Unknown",
+          customerEmail: o.user?.email || "Unknown"
+        };
+      });
+      setRecentOrders(mappedRecentOrders);
 
-      // 3. Fetch Products for low stock analysis
-      try {
-        const prodsRes = await api.get("/Products", {
-          params: { pageNumber: 1, pageSize: 50 },
-        });
-        const prodsData = Array.isArray(prodsRes.data)
-          ? prodsRes.data
-          : prodsRes.data.items || prodsRes.data.products || [];
-        const lowStock = prodsData
-          .filter((p: any) => (p.stockQuantity !== undefined ? p.stockQuantity <= 15 : false))
-          .sort((a: any, b: any) => (a.stockQuantity || 0) - (b.stockQuantity || 0))
-          .slice(0, 5);
-        setLowStockProducts(lowStock);
-      } catch (prodErr) {
-        console.warn("Could not load low stock inventory for dashboard:", prodErr);
-      }
+      // Low stock mapping
+      const mappedLowStock = lowStockList.slice(0, 5).map((p: any) => ({
+        id: p._id,
+        name: p.name,
+        stockQuantity: p.countInStock,
+        price: p.price,
+        mainImageUrl: p.image,
+        brandName: p.category?.name || "General"
+      }));
+      setLowStockProducts(mappedLowStock);
 
       if (isManualRefresh) {
         toast.success("Dashboard statistics refreshed");

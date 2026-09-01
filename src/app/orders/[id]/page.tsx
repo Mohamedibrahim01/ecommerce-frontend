@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { useAuthStore } from "@/src/components/store/authStore";
 import { Button } from "@/src/components/ui/button";
 import { toast } from "sonner";

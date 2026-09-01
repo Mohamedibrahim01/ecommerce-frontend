@@ -12,7 +12,7 @@ import {
   Trash2,
   ShieldAlert,
 } from "lucide-react";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { PageHeader } from "@/src/components/admin/PageHeader";
 import { DataTable, Column } from "@/src/components/admin/DataTable";
 import { SearchBar } from "@/src/components/admin/SearchBar";
@@ -36,7 +36,7 @@ interface UserData {
 
 export default function AdminUsersPage() {
   const currentUser = useAuthStore((state) => state.user);
-  const currentUserId = String(currentUser?._id || currentUser?.id || "");
+  const currentUserId = String(currentUser?._id || "");
 
   const [users, setUsers] = useState<UserData[]>([]);
   const [isLoading, setIsLoading] = useState(true);

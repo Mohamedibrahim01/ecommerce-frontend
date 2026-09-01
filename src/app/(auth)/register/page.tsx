@@ -24,7 +24,7 @@ import {
   RegisterFormValues,
   RegisterRequestPayload,
 } from "@/src/lib/registerSchema";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { cn } from "@/src/lib/utils";
@@ -85,7 +85,7 @@ export default function Register() {
 
       const response = await api.post(REGISTER_ENDPOINT, payload);
       toast.success("Account created successfully! Please check your email to verify your account.");
-      router.push("/login");
+      router.push("/confirm-email");
     } catch (error) {
       const err = error as {
         response?: {

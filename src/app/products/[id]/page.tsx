@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import {
@@ -68,6 +68,7 @@ export default function SingleProductPage() {
   const [product,      setProduct]      = useState<Product | null>(null);
   const [isLoading,    setIsLoading]    = useState(true);
   const [isAdding,     setIsAdding]     = useState(false);
+  const [quantity,     setQuantity]     = useState(1);
 
   // Review Form State
   const [rating, setRating] = useState(5);
@@ -92,7 +93,7 @@ export default function SingleProductPage() {
     if (!product || isAdding) return;
     setIsAdding(true);
     try {
-      await addItem(product._id, 1);
+      await addItem(product._id, quantity);
       toast.success("Added to Cart!");
     } catch {
       toast.error("Failed to add to cart");
@@ -279,19 +280,43 @@ export default function SingleProductPage() {
               </p>
             )}
 
-            {/* Add to Cart */}
-            <Button
-              size="xl"
-              variant={inStock ? "primary" : "secondary"}
-              className="w-full md:w-auto rounded-xl font-bold shadow-sm"
-              onClick={handleAddToCart}
-              loading={isAdding}
-              disabled={!inStock}
-              aria-label={inStock ? `Add ${product.name} to cart` : "Out of stock"}
-            >
-              {!isAdding && <ShoppingCart className="h-5 w-5" aria-hidden="true" />}
-              {inStock ? "Add to Cart" : "Out of Stock"}
-            </Button>
+            {/* Quantity & Add to Cart */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-2 border-t border-stone-100">
+              {inStock && (
+                <div className="flex items-center border border-stone-200 rounded-xl bg-white p-1 w-fit">
+                  <button
+                    type="button"
+                    className="w-10 h-10 flex items-center justify-center text-stone-500 hover:bg-stone-50 hover:text-stone-900 rounded-lg transition-colors disabled:opacity-50"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <span className="w-10 text-center font-bold text-stone-900">{quantity}</span>
+                  <button
+                    type="button"
+                    className="w-10 h-10 flex items-center justify-center text-stone-500 hover:bg-stone-50 hover:text-stone-900 rounded-lg transition-colors disabled:opacity-50"
+                    onClick={() => setQuantity(Math.min(product.countInStock, quantity + 1))}
+                    disabled={quantity >= product.countInStock}
+                  >
+                    +
+                  </button>
+                </div>
+              )}
+
+              <Button
+                size="xl"
+                variant={inStock ? "primary" : "secondary"}
+                className="flex-1 sm:flex-none sm:w-48 rounded-xl font-bold shadow-sm"
+                onClick={handleAddToCart}
+                loading={isAdding}
+                disabled={!inStock}
+                aria-label={inStock ? `Add ${product.name} to cart` : "Out of stock"}
+              >
+                {!isAdding && <ShoppingCart className="h-5 w-5 mr-2" aria-hidden="true" />}
+                {inStock ? "Add to Cart" : "Out of Stock"}
+              </Button>
+            </div>
           </div>
         </div>
 

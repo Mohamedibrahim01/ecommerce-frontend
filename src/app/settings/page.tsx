@@ -8,6 +8,7 @@ import {
   Star,
   CheckCircle2,
   X,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import {
@@ -18,7 +19,7 @@ import {
 } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { toast } from "sonner";
 import { useAuthStore } from "@/src/components/store/authStore";
 import { useRouter } from "next/navigation";
@@ -73,7 +74,7 @@ export default function SettingsPage() {
   async function handleAddAddress(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await api.post("/users/address", newAddress);
+      await api.post("/users/addresses", newAddress);
       toast.success("Address added successfully!");
       setIsAddModalOpen(false);
       setNewAddress({
@@ -92,11 +93,22 @@ export default function SettingsPage() {
 
   async function handleSetDefaultAddress(id: string) {
     try {
-      await api.put(`/users/address/${id}/set-default`);
+      await api.put(`/users/addresses/${id}/set-default`);
       toast.success("Default address updated!");
       fetchAddresses();
     } catch (error) {
       toast.error("Failed to update default address.");
+    }
+  }
+
+  async function handleDeleteAddress(id: string) {
+    if (!confirm("Are you sure you want to delete this address?")) return;
+    try {
+      await api.delete(`/users/addresses/${id}`);
+      toast.success("Address deleted successfully!");
+      fetchAddresses();
+    } catch (error) {
+      toast.error("Failed to delete address.");
     }
   }
 
@@ -198,18 +210,27 @@ export default function SettingsPage() {
                     </p>
                   </div>
 
-                  {!addr.isDefault && (
-                    <div className="pt-4 border-t border-gray-100">
+                  <div className="pt-4 border-t border-gray-100 flex gap-2">
+                    {!addr.isDefault && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleSetDefaultAddress(addr.id)}
-                        className="text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 w-full font-semibold"
+                        className="flex-1 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 font-semibold"
                       >
-                        <Star className="h-4 w-4 mr-2" /> Set as Default
+                        <Star className="h-4 w-4 mr-2" /> Set Default
                       </Button>
-                    </div>
-                  )}
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteAddress(addr.id)}
+                      className={`text-gray-400 hover:text-red-600 hover:bg-red-50 ${addr.isDefault ? 'w-full' : ''}`}
+                      title="Delete Address"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" /> Delete
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))

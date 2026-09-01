@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { ProductCard } from "@/src/components/products/ProductCard";
 import { Button } from "@/src/components/ui/button";
 import { normalizeImageUrl } from "@/src/lib/utils";

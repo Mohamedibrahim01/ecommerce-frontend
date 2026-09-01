@@ -11,7 +11,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -38,8 +38,11 @@ export default function ForgotPassword() {
     email: "",
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   async function handleForgotPassword(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const response = await api.post(FORGOT_PASSWORD_ENDPOINT, {
         email: formData.email,
@@ -47,6 +50,8 @@ export default function ForgotPassword() {
       toast.success("A password reset link has been sent to your email (valid for 10 minutes).");
     } catch (error: unknown) {
       toast.error(getErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -95,9 +100,10 @@ export default function ForgotPassword() {
 
               <Button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full bg-[#059669] hover:bg-[#047857] text-white py-2 rounded-md transition-colors font-medium mt-2"
               >
-                Reset Password ←
+                {isSubmitting ? "Sending..." : "Reset Password ←"}
               </Button>
             </form>
           </CardContent>

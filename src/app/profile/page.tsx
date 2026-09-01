@@ -12,7 +12,7 @@ import { Label } from "@/src/components/ui/label";
 import { Input } from "@/src/components/ui/input";
 import { Button } from "@/src/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { toast } from "sonner";
 import { normalizeImageUrl } from "@/src/lib/utils";
 

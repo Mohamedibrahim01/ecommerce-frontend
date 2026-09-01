@@ -11,7 +11,7 @@ import {
   Clock,
   Package
 } from "lucide-react";
-import { api } from "@/src/components/auth/axiosInstance";
+import { api } from "@/src/lib/api";
 import { PageHeader } from "@/src/components/admin/PageHeader";
 import { DataTable, Column } from "@/src/components/admin/DataTable";
 import { SearchBar } from "@/src/components/admin/SearchBar";

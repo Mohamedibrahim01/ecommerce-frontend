@@ -102,9 +102,8 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   const accessToken = useAuthStore((state) => state.accessToken);
-  // Derive isAdmin from roles array directly (not as a function call) to maintain Zustand reactivity
-  const roles = useAuthStore((state) => state.roles);
-  const isAdmin = roles.some((r) => r.toLowerCase() === "admin" || r.toLowerCase() === "administrator");
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.isAdmin === true;
   const cartItems = useCartStore((state) => state.items);
   const [cartCount, setCartCount] = useState(0);
   const [prevCount, setPrevCount] = useState(0);
