@@ -62,7 +62,7 @@ export const useCartStore = create<CartStore>()(
     try {
       set({ isLoading: true });
       if (useAuthStore.getState().isAuthenticated) {
-        await api.post("/carts/add", { productId, quantity });
+        await api.post("/carts", { productId, quantity });
         await get().fetchCart();
       } else {
         // Unauthenticated local handling
@@ -115,7 +115,7 @@ export const useCartStore = create<CartStore>()(
     try {
       set({ isLoading: true });
       if (useAuthStore.getState().isAuthenticated) {
-        await api.delete(`/carts/remove/${productId}`);
+        await api.delete(`/carts/${productId}`);
         await get().fetchCart();
       } else {
         const { items } = get();
@@ -133,7 +133,7 @@ export const useCartStore = create<CartStore>()(
     try {
       set({ isLoading: true });
       if (useAuthStore.getState().isAuthenticated) {
-        await api.put("/carts/update-quantity", { productId, quantity });
+        await api.put("/carts", { productId, quantity });
         await get().fetchCart();
       } else {
         const { items } = get();
@@ -152,7 +152,7 @@ export const useCartStore = create<CartStore>()(
     try {
       set({ isLoading: true });
       if (useAuthStore.getState().isAuthenticated) {
-        await api.delete("/carts/clear");
+        await api.delete("/carts");
       }
       set({ items: [], totalPrice: 0, isLoading: false });
     } catch (error: any) {
@@ -170,7 +170,7 @@ export const useCartStore = create<CartStore>()(
       // Add each item to the backend cart
       for (const item of items) {
         try {
-          await api.post("/carts/add", { productId: item.product._id, quantity: item.quantity });
+          await api.post("/carts", { productId: item.product._id, quantity: item.quantity });
         } catch (err) {
           console.error(`Failed to sync item ${item.product.name}:`, err);
         }

@@ -77,11 +77,12 @@ export default function SingleProductPage() {
 
   const addItem     = useCartStore((state) => state.addItem);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const isGuest     = useAuthStore((state) => state.isGuest);
   const router      = useRouter();
 
   // ── Cart handler ──────────────────────────────────────────────────────────
   const handleAddToCart = async () => {
-    if (!accessToken) {
+    if (!accessToken && !isGuest) {
       toast.error("Please sign in to add products to your cart.", {
         action: {
           label: "Sign in",

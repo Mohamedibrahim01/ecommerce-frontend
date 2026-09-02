@@ -35,6 +35,7 @@ export const ProductCard = ({ product, isRecommended = false, className }: Produ
   const addItem      = useCartStore((state) => state.addItem);
   const accessToken  = useAuthStore((state) => state.accessToken);
   const router       = useRouter();
+  const isGuest      = useAuthStore((state) => state.isGuest);
   const [isNotified, setIsNotified] = useState(false);
   const [isAdding,   setIsAdding]   = useState(false);
 
@@ -54,7 +55,7 @@ export const ProductCard = ({ product, isRecommended = false, className }: Produ
   const productId = String(product._id || product.id);
 
   const handleAddToCart = async () => {
-    if (!accessToken) {
+    if (!accessToken && !isGuest) {
       toast.error("Please sign in to add products to your cart.", {
         action: {
           label: "Sign in",
