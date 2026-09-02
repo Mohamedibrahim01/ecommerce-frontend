@@ -23,7 +23,9 @@ export default function AppInitializer({
   }, [checkRefresh]);
 
   useEffect(() => {
-    if (isLoading) return;
+    const isRestoringSession = useAuthStore.getState().isAuthenticated && !accessToken;
+    if (isLoading || isRestoringSession) return;
+    
     if (accessToken) {
       fetchCart();
     } else {
