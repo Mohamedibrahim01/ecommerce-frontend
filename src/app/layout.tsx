@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "PeakSupps" }],
   creator: "PeakSupps",
-  metadataBase: new URL("https://sh-supplements.runasp.net"),
+  metadataBase: new URL("https://ecommerce-peak-supps.vercel.app"),
   openGraph: {
     title: "PeakSupps — Premium Performance Nutrition",
     description:
