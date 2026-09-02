@@ -65,7 +65,9 @@ export default function SettingsPage() {
   const fetchAddresses = async () => {
     try {
       const response = await api.get("/users/addresses");
-      setAddresses(response.data);
+      const data = response.data?.data || response.data;
+      const fetchedAddresses = Array.isArray(data) ? data : data?.addresses || [];
+      setAddresses(fetchedAddresses);
     } catch (error) {
       toast.error("Failed to load addresses.");
     }

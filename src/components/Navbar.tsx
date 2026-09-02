@@ -116,7 +116,6 @@ export default function Navbar() {
   // Read user name directly from the persisted auth store (no extra API call needed)
   const authUser = useAuthStore((state) => state.user);
   const userName = (authUser as any)?.name || (authUser as any)?.firstName || "Account";
-  const userAvatar = (authUser as any)?.avatar || (authUser as any)?.profileImageUrl || null;
 
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -298,15 +297,7 @@ export default function Navbar() {
                 >
                   <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-500 p-[2px] flex items-center justify-center flex-shrink-0 shadow-sm">
                     <div className="h-full w-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                      {userAvatar ? (
-                        <img
-                          src={normalizeImageUrl(userAvatar)}
-                          alt="Profile avatar"
-                          className="h-full w-full object-cover rounded-full aspect-square"
-                        />
-                      ) : (
-                        <User className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-                      )}
+                      <User className="h-5 w-5 text-emerald-600" aria-hidden="true" />
                     </div>
                   </div>
                   <span className="font-bold text-sm text-stone-800 max-w-[110px] truncate">
@@ -563,15 +554,7 @@ export default function Navbar() {
                   onClick={() => setIsSidebarOpen(false)}
                 >
                   <div className="h-10 w-10 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {userAvatar ? (
-                      <img
-                        src={normalizeImageUrl(userAvatar)}
-                        alt="Profile avatar"
-                        className="h-full w-full object-cover rounded-full aspect-square"
-                      />
-                    ) : (
                       <User className="h-5 w-5 text-emerald-400" aria-hidden="true" />
-                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-base font-bold text-white truncate">

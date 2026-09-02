@@ -28,7 +28,6 @@ interface UserData {
   _id: string;
   name: string;
   email: string;
-  avatar?: string;
   isAdmin: boolean;
   isEmailConfirmed: boolean;
   createdAt: string;
@@ -162,18 +161,7 @@ export default function AdminUsersPage() {
         return (
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 flex items-center justify-center border border-stone-200 bg-gradient-to-br from-emerald-500 to-teal-700 text-white font-extrabold text-sm shadow-sm">
-              {u.avatar ? (
-                <img
-                  src={normalizeImageUrl(u.avatar)}
-                  alt={u.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = "none";
-                  }}
-                />
-              ) : (
-                <span>{getInitials(u.name)}</span>
-              )}
+              <span>{getInitials(u.name)}</span>
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-stone-900 text-sm">{u.name}</span>

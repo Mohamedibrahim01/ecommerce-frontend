@@ -20,7 +20,6 @@ type UserData = {
   _id: string;
   name: string;
   email: string;
-  avatar: string | null;
   isAdmin: boolean;
   isEmailConfirmed: boolean;
   createdAt: string;
@@ -62,8 +61,6 @@ export default function ProfilePage() {
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   useEffect(() => {
     if (!accessToken) { router.replace("/login"); return; }
@@ -82,50 +79,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Unsupported file format. Please upload a JPG, PNG, or WEBP image.");
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      toast.error("Image size too large. Please select an image under 5MB.");
-      return;
-    }
-
-    setIsUploadingAvatar(true);
-    const formData = new FormData();
-    formData.append("avatar", file);
-
-    try {
-      const res = await api.put("/users/profile/avatar", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      });
-      const newAvatarUrl = res.data?.data?.avatar || res.data?.avatar;
-
-      setUserData((prev) => prev ? { ...prev, avatar: newAvatarUrl } : null);
-
-      const user = useAuthStore.getState().user;
-      if (user) {
-        useAuthStore.setState({ user: { ...user, avatar: newAvatarUrl } });
-      }
-
-      toast.success(res.data?.message || "Avatar uploaded successfully!");
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to upload avatar");
-    } finally {
-      setIsUploadingAvatar(false);
-    }
-
-    e.target.value = ""; // Reset input
-  };
 
   const handleUpdateInfo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,43 +164,11 @@ export default function ProfilePage() {
               <div className="px-6 pb-6 -mt-14 sm:-mt-18 text-center">
                 <div className="relative inline-block mx-auto">
                   <div className="h-28 w-28 sm:h-36 sm:w-36 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center overflow-hidden mx-auto">
-                    {userData.avatar ? (
-                      <img
-                        src={normalizeImageUrl(userData.avatar)}
-                        alt={`${userData.name}`}
-                        className="h-full w-full rounded-full object-cover aspect-square"
-                      />
-                    ) : (
-                      <div className="h-full w-full rounded-full bg-emerald-50 flex items-center justify-center">
-                        <User className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-600" aria-hidden="true" />
-                      </div>
-                    )}
-                    {isUploadingAvatar && (
-                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-sm">
-                        <RefreshCw className="h-6 w-6 text-emerald-600 animate-spin" />
-                      </div>
-                    )}
+                    <div className="h-full w-full rounded-full bg-emerald-50 flex items-center justify-center">
+                      <User className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-600" aria-hidden="true" />
+                    </div>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploadingAvatar}
-                    className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 p-2 sm:p-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-md border-2 border-white transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 cursor-pointer disabled:opacity-50"
-                    aria-label="Upload profile photo"
-                    title="Upload profile photo"
-                  >
-                    <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
-                  </button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    accept="image/jpeg,image/jpg,image/png,image/webp"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
                 </div>
-
                 <h2 className="mt-3 text-lg font-black text-stone-900 flex items-center justify-center gap-1.5">
                   {userData.name}
                 </h2>

@@ -36,7 +36,7 @@ export function normalizeImageUrl(url?: string | null): string {
     return `https:${trimmed}`;
   }
 
-  // Backend-relative path (e.g. /uploads/avatar-xxx.jpg)
+  // Backend-relative path (e.g. /uploads/image-xxx.jpg)
   // Must be served from the backend origin, NOT the Next.js origin
   if (trimmed.startsWith("/uploads/")) {
     return `${BACKEND_ORIGIN}${trimmed}`;
