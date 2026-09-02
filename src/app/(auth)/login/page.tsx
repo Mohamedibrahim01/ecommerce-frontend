@@ -19,6 +19,7 @@ import { useState } from "react";
 import { api } from "@/src/lib/api";
 import { toast } from "sonner";
 import { AuthUser, useAuthStore } from "@/src/components/store/authStore";
+import { useCartStore } from "@/src/components/store/cartStore";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const LOGIN_ENDPOINT = "/auth/login";
@@ -141,6 +142,17 @@ export default function Login() {
 
       // Pass user object and token to store
       loginStore(responseData, token);
+
+      // Sync local cart to backend if any items exist
+      try {
+        const syncLocalCart = useCartStore.getState().syncLocalCart;
+        if (syncLocalCart) {
+          await syncLocalCart();
+        }
+      } catch (err) {
+        console.error("Cart sync failed during login", err);
+      }
+
       router.push(redirectTo as Route);
       toast.success("Welcome back!");
     } catch (error: unknown) {

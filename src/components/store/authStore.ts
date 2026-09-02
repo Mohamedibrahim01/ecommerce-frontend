@@ -51,6 +51,10 @@ export const useAuthStore = create<AuthState>()(
         } finally {
           setApiAccessToken(null);
           set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+          // Clear local cart state on logout
+          import("./cartStore").then(({ useCartStore }) => {
+            useCartStore.setState({ items: [], totalPrice: 0 });
+          }).catch(console.error);
         }
       },
 
