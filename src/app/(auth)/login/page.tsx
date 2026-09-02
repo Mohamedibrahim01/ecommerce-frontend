@@ -136,13 +136,14 @@ export default function Login() {
       
       const responseData = response.data.data;
       const token = responseData?.accessToken;
+      const user = responseData?.user;
 
       if (!token) {
         throw new Error("Login succeeded, but no auth token was returned.");
       }
 
       // Pass user object and token to store
-      loginStore(responseData, token);
+      loginStore(user, token);
 
       // Sync local cart to backend if any items exist
       try {
