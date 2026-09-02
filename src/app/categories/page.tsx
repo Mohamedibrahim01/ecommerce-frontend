@@ -67,7 +67,7 @@ export default function CategoriesPage() {
             const fallbackImageUrl = getCategoryImageUrl(cat.name, index);
             const finalImageUrl = cat.image ? normalizeImageUrl(cat.image) : fallbackImageUrl;
             return (
-              <Link href={`/categories/${cat.slug || cat.id}`} key={cat._id || cat.id} className="block group">
+              <Link href={`/products?category=${cat._id || cat.id}`} key={cat._id || cat.id} className="block group">
                 <div className="relative bg-stone-900 border border-stone-800 rounded-3xl transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 cursor-pointer overflow-hidden flex flex-col justify-end min-h-[300px] p-8">
                   {/* Background Image with slight zoom on hover */}
                   <div className="absolute inset-0 z-0 overflow-hidden bg-stone-900">

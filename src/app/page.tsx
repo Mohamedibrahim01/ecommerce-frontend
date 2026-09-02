@@ -316,7 +316,7 @@ export default function Home() {
               return (
                 <Link
                   key={category.id}
-                  href={`/categories/${category.id}`}
+                  href={`/products?category=${category.id}`}
                   className={cn(
                     "relative rounded-3xl overflow-hidden group block cursor-pointer",
                     "border border-stone-200/80 shadow-md hover:shadow-xl hover:-translate-y-1",
