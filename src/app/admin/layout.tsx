@@ -1,57 +1,71 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { AdminGuard } from "@/src/components/admin/AdminGuard";
-import { AdminSidebar } from "@/src/components/admin/AdminSidebar";
-import { AdminNavbar } from "@/src/components/admin/AdminNavbar";
 import { cn } from "@/src/lib/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Package,
+  Layers,
+  ShoppingBag,
+  Users,
+} from "lucide-react";
+
+const navItems = [
+  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
+  { name: "Products", href: "/admin/products", icon: Package },
+  { name: "Categories", href: "/admin/categories", icon: Layers },
+  { name: "Users", href: "/admin/users", icon: Users },
+];
+
+function AdminTabs() {
+  const pathname = usePathname();
+  
+  return (
+    <div className="bg-white border-b border-stone-200 mb-6 sticky top-20 z-30">
+      <div className="container-xl max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="flex space-x-8 overflow-x-auto" aria-label="Admin Tabs">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm transition-colors",
+                  isActive
+                    ? "border-emerald-500 text-emerald-600"
+                    : "border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300"
+                )}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <Icon className={cn("w-4 h-4", isActive ? "text-emerald-500" : "text-stone-400")} />
+                {item.name}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-
   return (
     <AdminGuard>
-      {/* Hide customer Navbar and Footer without modifying customer files */}
-      <style jsx global>{`
-        nav[aria-label="Main navigation"],
-        footer[aria-label="Site footer"] {
-          display: none !important;
-        }
-        main.flex-1 {
-          min-height: auto !important;
-          padding: 0 !important;
-          margin: 0 !important;
-          max-width: none !important;
-        }
-      `}</style>
-
-      <div className="min-h-screen bg-stone-50/70 text-stone-900 flex flex-col font-sans">
-        {/* Sidebar */}
-        <AdminSidebar
-          isCollapsed={isCollapsed}
-          onToggleCollapse={() => setIsCollapsed((prev) => !prev)}
-          isMobileOpen={isMobileOpen}
-          onCloseMobile={() => setIsMobileOpen(false)}
-        />
-
-        {/* Main Content Area */}
-        <div
-          className={cn(
-            "flex-1 flex flex-col transition-all duration-300 ease-in-out min-h-screen",
-            isCollapsed ? "lg:pl-20" : "lg:pl-64"
-          )}
-        >
-          <AdminNavbar onOpenMobile={() => setIsMobileOpen(true)} />
-
-          <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 max-w-7xl w-full mx-auto">
-            {children}
-          </main>
-        </div>
+      <div className="min-h-full bg-stone-50 text-stone-900 flex flex-col font-sans">
+        <AdminTabs />
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          {children}
+        </main>
       </div>
     </AdminGuard>
   );

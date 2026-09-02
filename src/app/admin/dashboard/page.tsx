@@ -1,447 +1,87 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React from "react";
+import Link from "next/link";
 import {
   Users,
   ShoppingBag,
-  DollarSign,
-  Clock,
-  AlertTriangle,
-  RefreshCw,
-  TrendingUp,
   Package,
-  CheckCircle2,
-  Truck,
-  XCircle,
-  AlertCircle,
+  Layers,
   ArrowRight,
-  ExternalLink,
 } from "lucide-react";
-import { api } from "@/src/lib/api";
 import { PageHeader } from "@/src/components/admin/PageHeader";
-import { StatCard } from "@/src/components/admin/StatCard";
-import { LoadingSkeleton } from "@/src/components/admin/LoadingSkeleton";
-import { ErrorState } from "@/src/components/admin/ErrorState";
-import { Button } from "@/src/components/ui/button";
-import { formatPrice, normalizeImageUrl } from "@/src/lib/utils";
-import { toast } from "sonner";
-import Link from "next/link";
 
-interface DashboardStats {
-  totalUsers: number;
-  totalOrders: number;
-  totalRevenue: number;
-  pendingOrders: number;
-  lowStockProducts: number;
-}
-
-interface RecentOrder {
-  id: string;
-  orderDate: string;
-  status: number;
-  finalAmount?: number;
-  totalAmount?: number;
-  customerName?: string;
-  customerEmail?: string;
-}
-
-interface LowStockItem {
-  id: string | number;
-  name: string;
-  stockQuantity?: number;
-  price?: number;
-  mainImageUrl?: string;
-  brandName?: string;
-}
-
-const STATUS_MAP: Record<number, { text: string; color: string; icon: any }> = {
-  1: { text: "Pending", color: "bg-yellow-50 text-yellow-700 border-yellow-200", icon: Clock },
-  2: { text: "Processing", color: "bg-blue-50 text-blue-700 border-blue-200", icon: RefreshCw },
-  3: { text: "Shipped", color: "bg-purple-50 text-purple-700 border-purple-200", icon: Truck },
-  4: { text: "Delivered", color: "bg-green-50 text-green-700 border-green-200", icon: CheckCircle2 },
-  5: { text: "Cancelled", color: "bg-red-50 text-red-700 border-red-200", icon: XCircle },
-  6: { text: "Refunded", color: "bg-gray-50 text-gray-700 border-gray-200", icon: AlertCircle },
-};
+const adminModules = [
+  {
+    title: "Orders",
+    description: "Manage customer orders, track shipments, and process fulfillments.",
+    href: "/admin/orders",
+    icon: ShoppingBag,
+    color: "bg-blue-50 text-blue-600",
+    hoverColor: "group-hover:bg-blue-100",
+  },
+  {
+    title: "Products",
+    description: "Add new inventory, update stock levels, and manage pricing.",
+    href: "/admin/products",
+    icon: Package,
+    color: "bg-emerald-50 text-emerald-600",
+    hoverColor: "group-hover:bg-emerald-100",
+  },
+  {
+    title: "Categories",
+    description: "Organize products into collections and manage taxonomy.",
+    href: "/admin/categories",
+    icon: Layers,
+    color: "bg-amber-50 text-amber-600",
+    hoverColor: "group-hover:bg-amber-100",
+  },
+  {
+    title: "Users",
+    description: "View customer profiles and manage administrator access.",
+    href: "/admin/users",
+    icon: Users,
+    color: "bg-purple-50 text-purple-600",
+    hoverColor: "group-hover:bg-purple-100",
+  },
+];
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
-  const [lowStockProducts, setLowStockProducts] = useState<LowStockItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchStatistics = useCallback(async (isManualRefresh = false) => {
-    if (isManualRefresh) {
-      setIsRefreshing(true);
-    } else {
-      setIsLoading(true);
-    }
-    setError(null);
-
-    try {
-      // Fetch all required data concurrently
-      const [ordersRes, productsRes, usersRes] = await Promise.all([
-        api.get("/orders"),
-        api.get("/products", { params: { limit: 1000 } }), 
-        api.get("/users/all-users")
-      ]);
-
-      const ordersData = Array.isArray(ordersRes.data?.data) ? ordersRes.data.data : Array.isArray(ordersRes.data) ? ordersRes.data : [];
-      const productsData = Array.isArray(productsRes.data?.data) ? productsRes.data.data : Array.isArray(productsRes.data) ? productsRes.data : [];
-      const usersData = Array.isArray(usersRes.data?.data) ? usersRes.data.data : Array.isArray(usersRes.data) ? usersRes.data : [];
-
-      // Compute Total Revenue (paid orders)
-      const paidOrders = ordersData.filter((o: any) => o.isPaid);
-      const totalRevenue = paidOrders.reduce((sum: number, o: any) => sum + (o.totalPrice || 0), 0);
-
-      // Compute Pending Orders (not delivered, not cancelled)
-      const pendingOrdersCount = ordersData.filter((o: any) => !o.isDelivered && o.status !== "Cancelled").length;
-
-      // Compute Low Stock Products (countInStock <= 3)
-      const lowStockList = productsData
-        .filter((p: any) => p.countInStock <= 3)
-        .sort((a: any, b: any) => a.countInStock - b.countInStock);
-
-      setStats({
-        totalUsers: usersData.length,
-        totalOrders: ordersData.length,
-        totalRevenue: totalRevenue,
-        pendingOrders: pendingOrdersCount,
-        lowStockProducts: lowStockList.length,
-      });
-
-      // Recent Orders (latest 5)
-      const sortedOrders = [...ordersData].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      
-      const mappedRecentOrders = sortedOrders.slice(0, 5).map((o: any) => {
-        let status = 1; // Pending
-        if (o.isDelivered) status = 4; // Delivered
-        else if (o.status === "Cancelled") status = 5; // Cancelled
-        
-        return {
-          id: o._id,
-          orderDate: o.createdAt,
-          status,
-          finalAmount: o.totalPrice,
-          customerName: o.user?.name || "Unknown",
-          customerEmail: o.user?.email || "Unknown"
-        };
-      });
-      setRecentOrders(mappedRecentOrders);
-
-      // Low stock mapping
-      const mappedLowStock = lowStockList.slice(0, 5).map((p: any) => ({
-        id: p._id,
-        name: p.name,
-        stockQuantity: p.countInStock,
-        price: p.price,
-        mainImageUrl: p.image,
-        brandName: p.category?.name || "General"
-      }));
-      setLowStockProducts(mappedLowStock);
-
-      if (isManualRefresh) {
-        toast.success("Dashboard statistics refreshed");
-      }
-    } catch (err: any) {
-      console.error("Failed to load dashboard statistics:", err);
-      const msg =
-        err.response?.data?.Message ||
-        err.response?.data?.message ||
-        "Could not load real-time statistics from server.";
-      setError(msg);
-      if (isManualRefresh) {
-        toast.error("Failed to refresh statistics");
-      }
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchStatistics();
-  }, [fetchStatistics]);
-
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Page Header */}
       <PageHeader
-        title="Dashboard Overview"
-        subtitle="Real-time performance metrics and business statistics for PeakSupps."
-      >
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => fetchStatistics(true)}
-          disabled={isLoading || isRefreshing}
-          className="rounded-xl font-bold gap-2 bg-white shadow-sm"
-        >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin text-emerald-600" : ""}`} />
-          <span>Refresh</span>
-        </Button>
-      </PageHeader>
+        title="Admin Dashboard"
+        subtitle="Welcome to your command center. Select a module below to manage your store."
+      />
 
-      {/* Content Area */}
-      {isLoading ? (
-        <LoadingSkeleton type="cards" count={5} />
-      ) : error ? (
-        <ErrorState
-          title="Statistics Unreachable"
-          message={error}
-          onRetry={() => fetchStatistics()}
-          isRetrying={isLoading || isRefreshing}
-        />
-      ) : stats ? (
-        <div className="space-y-8">
-          {/* Main Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-            <StatCard
-              title="Total Revenue"
-              value={formatPrice(stats.totalRevenue)}
-              icon={DollarSign}
-              colorScheme="emerald"
-              description="Overall store revenue"
-              trend={{ value: "+12.5%", isPositive: true }}
-              index={0}
-            />
-
-            <StatCard
-              title="Total Orders"
-              value={stats.totalOrders.toLocaleString()}
-              icon={ShoppingBag}
-              colorScheme="blue"
-              description="Completed & pending"
-              trend={{ value: "+8.2%", isPositive: true }}
-              index={1}
-            />
-
-            <StatCard
-              title="Pending Orders"
-              value={stats.pendingOrders.toLocaleString()}
-              icon={Clock}
-              colorScheme="amber"
-              description="Requires fulfillment"
-              index={2}
-            />
-
-            <StatCard
-              title="Total Users"
-              value={stats.totalUsers.toLocaleString()}
-              icon={Users}
-              colorScheme="purple"
-              description="Registered customers"
-              trend={{ value: "+5.1%", isPositive: true }}
-              index={3}
-            />
-
-            <StatCard
-              title="Low Stock"
-              value={stats.lowStockProducts.toLocaleString()}
-              icon={AlertTriangle}
-              colorScheme="red"
-              description="Needs replenishment"
-              trend={{ value: stats.lowStockProducts > 0 ? "Attention" : "Optimal", isPositive: stats.lowStockProducts === 0 }}
-              index={4}
-            />
-          </div>
-
-          {/* Two Column Grid: Recent Orders & Low Stock Alerts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Orders Section */}
-            <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm flex flex-col justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+        {adminModules.map((module) => {
+          const Icon = module.icon;
+          return (
+            <Link
+              key={module.title}
+              href={module.href}
+              className="group flex flex-col justify-between bg-white rounded-3xl p-6 md:p-8 border border-stone-200 shadow-sm hover:shadow-md hover:border-stone-300 transition-all duration-200"
+            >
               <div>
-                <div className="flex items-center justify-between pb-4 border-b border-stone-100">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
-                      <ShoppingBag className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-stone-900 text-sm">Recent Customer Orders</h4>
-                      <p className="text-[11px] text-stone-400 font-medium">Latest 5 transactions</p>
-                    </div>
-                  </div>
-                  <Link
-                    href="/admin/orders"
-                    className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 transition-colors"
-                  >
-                    View All <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${module.color} ${module.hoverColor} transition-colors mb-5`}>
+                  <Icon className="w-6 h-6" />
                 </div>
-
-                <div className="divide-y divide-stone-100 mt-2">
-                  {recentOrders.length > 0 ? (
-                    recentOrders.map((ord) => {
-                      const info = STATUS_MAP[ord.status] || { text: "Unknown", color: "bg-stone-100 text-stone-600 border-stone-200", icon: Clock };
-                      const Icon = info.icon;
-                      return (
-                        <div key={ord.id} className="py-3 flex items-center justify-between gap-3">
-                          <div className="flex flex-col min-w-0">
-                            <span className="font-bold text-stone-900 font-mono text-xs truncate">
-                              #{ord.id.slice(0, 8).toUpperCase()}
-                            </span>
-                            <span className="text-[11px] text-stone-500 truncate">
-                              {ord.customerName || ord.customerEmail || "Guest Customer"}
-                            </span>
-                            <span className="text-[10px] text-stone-400">
-                              {new Date(ord.orderDate).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 shrink-0">
-                            <span className="font-black text-stone-900 text-xs">
-                              {formatPrice(ord.finalAmount || ord.totalAmount || 0)}
-                            </span>
-                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${info.color}`}>
-                              <Icon className="w-3 h-3 shrink-0" />
-                              {info.text}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="py-12 text-center text-stone-400 text-xs font-medium">
-                      No recent orders recorded yet.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="pt-4 mt-2 border-t border-stone-100 flex justify-end">
-                <Button asChild variant="outline" size="sm" className="rounded-xl font-bold text-xs gap-1.5 w-full sm:w-auto">
-                  <Link href="/admin/orders">
-                    Manage Orders Catalog <ExternalLink className="w-3.5 h-3.5 text-stone-400" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-
-            {/* Low Stock Alerts Section */}
-            <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between pb-4 border-b border-stone-100">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600">
-                      <AlertTriangle className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h4 className="font-extrabold text-stone-900 text-sm">Low Stock Inventory Alerts</h4>
-                      <p className="text-[11px] text-stone-400 font-medium">Items requiring replenishment</p>
-                    </div>
-                  </div>
-                  <Link
-                    href="/admin/products"
-                    className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 transition-colors"
-                  >
-                    Inventory <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-
-                <div className="divide-y divide-stone-100 mt-2">
-                  {lowStockProducts.length > 0 ? (
-                    lowStockProducts.map((prod) => {
-                      const stock = prod.stockQuantity || 0;
-                      return (
-                        <div key={prod.id} className="py-3 flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-xl bg-stone-100 border border-stone-200 overflow-hidden shrink-0 flex items-center justify-center">
-                              {prod.mainImageUrl ? (
-                                <img
-                                  src={normalizeImageUrl(prod.mainImageUrl)}
-                                  alt={prod.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <Package className="w-4 h-4 text-stone-400" />
-                              )}
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                              <span className="font-bold text-stone-900 text-xs truncate">
-                                {prod.name}
-                              </span>
-                              <span className="text-[10px] text-stone-400 uppercase">
-                                {prod.brandName || `ID: #${prod.id}`}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3 shrink-0">
-                            <span className="font-bold text-stone-800 text-xs">
-                              {prod.price ? formatPrice(prod.price) : "—"}
-                            </span>
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black border ${
-                                stock === 0
-                                  ? "bg-red-50 text-red-700 border-red-200 animate-pulse"
-                                  : "bg-amber-50 text-amber-800 border-amber-200"
-                              }`}
-                            >
-                              {stock === 0 ? "Out of Stock" : `${stock} Left`}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="py-12 text-center text-stone-400 text-xs font-medium">
-                      Optimal inventory levels. No low stock items detected.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="pt-4 mt-2 border-t border-stone-100 flex justify-end">
-                <Button asChild variant="outline" size="sm" className="rounded-xl font-bold text-xs gap-1.5 w-full sm:w-auto">
-                  <Link href="/admin/products">
-                    Restock Products <ExternalLink className="w-3.5 h-3.5 text-stone-400" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Summary / Status Banner */}
-          <div className="bg-stone-900 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-lg border border-stone-800">
-            <div
-              className="absolute inset-0 opacity-5 pointer-events-none"
-              style={{
-                backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
-                backgroundSize: "24px 24px",
-              }}
-            />
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
-                  <TrendingUp className="w-3.5 h-3.5" /> Live Store Health
-                </div>
-                <h3 className="text-xl sm:text-2xl font-black tracking-tight">
-                  System operational & synced with database
+                <h3 className="text-xl font-extrabold text-stone-900 mb-2">
+                  {module.title}
                 </h3>
-                <p className="text-stone-400 text-sm max-w-xl leading-relaxed">
-                  All customer orders, product inventory, and user registrations are updating in real-time. Use the navigation sidebar to manage catalog records and process returns.
+                <p className="text-sm font-medium text-stone-500 leading-relaxed">
+                  {module.description}
                 </p>
               </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <Button
-                  asChild
-                  variant="primary"
-                  className="rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 px-6 h-11"
-                >
-                  <Link href="/admin/orders">Manage Orders</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="rounded-xl font-bold border-stone-700 bg-stone-800/80 hover:bg-stone-700 text-white px-6 h-11"
-                >
-                  <Link href="/admin/products">View Inventory</Link>
-                </Button>
+              <div className="mt-8 flex items-center text-emerald-600 font-bold text-sm">
+                Manage {module.title}
+                <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
               </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }
