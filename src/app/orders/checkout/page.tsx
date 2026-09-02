@@ -24,6 +24,7 @@ interface Address {
 
 export default function CheckoutPage() {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const isGuest = useAuthStore((state) => state.isGuest);
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,16 +51,16 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setIsClient(true);
-    if (!accessToken) {
+    if (!accessToken && !isGuest) {
       router.replace("/login?redirect=/orders/checkout");
     }
-  }, [accessToken, router]);
+  }, [accessToken, isGuest, router]);
 
   useEffect(() => {
-    if (isClient && accessToken) {
+    if (isClient) {
       fetchCart();
     }
-  }, [fetchCart, isClient, accessToken]);
+  }, [fetchCart, isClient]);
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -95,6 +96,11 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!accessToken) {
+      router.push("/login?redirect=/orders/checkout");
+      return;
+    }
     
     let shippingAddressPayload;
 
@@ -398,6 +404,8 @@ export default function CheckoutPage() {
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Processing...
               </>
+            ) : !accessToken ? (
+              "Sign In to Checkout"
             ) : (
               "Confirm Order"
             )}

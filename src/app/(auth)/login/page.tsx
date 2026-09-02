@@ -95,6 +95,7 @@ export default function Login() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const loginStore = useAuthStore((state) => state.login);
+  const loginAsGuest = useAuthStore((state) => state.loginAsGuest);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectParam = searchParams.get("redirect");
@@ -354,6 +355,7 @@ export default function Login() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+
                   placeholder="Enter your password"
                   className="pl-10 pr-10"
                   required
@@ -382,6 +384,29 @@ export default function Login() {
               aria-label="Sign in to your account"
             >
               {!isSubmitting && <>Sign In <ArrowRight className="h-4 w-4" aria-hidden="true" /></>}
+            </Button>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-stone-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-stone-50 px-2 text-stone-500 font-bold">Or</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                loginAsGuest();
+                router.push(redirectTo as Route);
+                toast.success("Continuing as guest");
+              }}
+              className="w-full rounded-xl font-bold border-stone-300 text-stone-700 hover:bg-stone-200"
+            >
+              Continue as Guest
             </Button>
           </form>
 

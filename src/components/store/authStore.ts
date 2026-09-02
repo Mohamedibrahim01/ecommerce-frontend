@@ -14,10 +14,12 @@ interface AuthState {
   user: AuthUser | null;
   accessToken: string | null;
   isAuthenticated: boolean;
+  isGuest: boolean;
   isLoading: boolean;
 
   login: (user: AuthUser, token: string) => void;
   register: (user: AuthUser, token: string) => void;
+  loginAsGuest: () => void;
   logout: () => Promise<void>;
   setToken: (token: string | null) => void;
   setIsLoading: (loading: boolean) => void;
@@ -31,16 +33,27 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       accessToken: null,
       isAuthenticated: false,
+      isGuest: false,
       isLoading: false,
 
       login: (user, token) => {
         setApiAccessToken(token);
-        set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
+        set({ user, accessToken: token, isAuthenticated: true, isGuest: false, isLoading: false });
       },
       
       register: (user, token) => {
         setApiAccessToken(token);
-        set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
+        set({ user, accessToken: token, isAuthenticated: true, isGuest: false, isLoading: false });
+      },
+
+      loginAsGuest: () => {
+        set({
+          user: { _id: "guest", name: "Guest User", email: "guest@example.com", isAdmin: false },
+          accessToken: null,
+          isAuthenticated: false,
+          isGuest: true,
+          isLoading: false
+        });
       },
 
       logout: async () => {
@@ -50,7 +63,7 @@ export const useAuthStore = create<AuthState>()(
           console.error("Logout error", error);
         } finally {
           setApiAccessToken(null);
-          set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+          set({ user: null, accessToken: null, isAuthenticated: false, isGuest: false, isLoading: false });
           // Clear local cart state on logout
           import("./cartStore").then(({ useCartStore }) => {
             useCartStore.setState({ items: [], totalPrice: 0 });
@@ -81,15 +94,15 @@ export const useAuthStore = create<AuthState>()(
             set({ accessToken: newAccessToken, isLoading: false });
           } catch (error) {
             setApiAccessToken(null);
-            set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+            set({ user: null, accessToken: null, isAuthenticated: false, isGuest: false, isLoading: false });
           }
         }
       },
     }),
     {
       name: "ecommerce-auth",
-      // Only persist user data and auth flag, NOT the access token for security reasons.
-      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      // Only persist user data, auth flags, NOT the access token for security reasons.
+      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated, isGuest: state.isGuest }),
     }
   )
 );

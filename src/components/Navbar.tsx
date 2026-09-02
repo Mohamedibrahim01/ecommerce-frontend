@@ -102,6 +102,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   const accessToken = useAuthStore((state) => state.accessToken);
+  const isGuest = useAuthStore((state) => state.isGuest);
   const user = useAuthStore((state) => state.user);
   const isAdmin = user?.isAdmin === true;
   const cartItems = useCartStore((state) => state.items);
@@ -280,7 +281,7 @@ export default function Navbar() {
             </Button>
 
             {/* Auth Profile Dropdown */}
-            {accessToken ? (
+            {accessToken || isGuest ? (
               <div className="relative hidden sm:block" ref={profileDropdownRef}>
                 <button
                   type="button"
@@ -328,67 +329,85 @@ export default function Navbar() {
                     </div>
 
                     <div className="px-1.5 space-y-0.5">
-                      {isAdmin && (
+                      {isGuest ? (
                         <Link
-                          href="/admin/dashboard"
+                          href="/login"
                           role="menuitem"
                           tabIndex={0}
                           onClick={() => setIsProfileOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 transition-colors focus:bg-emerald-100 focus:outline-none"
+                          className="flex items-center justify-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors focus:outline-none"
                         >
-                          <ShieldCheck className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                          Admin Dashboard
+                          Sign In / Register
                         </Link>
+                      ) : (
+                        <>
+                          {isAdmin && (
+                            <Link
+                              href="/admin/dashboard"
+                              role="menuitem"
+                              tabIndex={0}
+                              onClick={() => setIsProfileOpen(false)}
+                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 transition-colors focus:bg-emerald-100 focus:outline-none"
+                            >
+                              <ShieldCheck className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                              Admin Dashboard
+                            </Link>
+                          )}
+                          <Link
+                            href="/profile"
+                            role="menuitem"
+                            tabIndex={0}
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-stone-700 hover:bg-stone-50 hover:text-emerald-600 transition-colors focus:bg-stone-50 focus:text-emerald-600 focus:outline-none"
+                          >
+                            <User className="h-4 w-4 text-stone-400" aria-hidden="true" />
+                            Profile
+                          </Link>
+                          <Link
+                            href="/orders"
+                            role="menuitem"
+                            tabIndex={0}
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-stone-700 hover:bg-stone-50 hover:text-emerald-600 transition-colors focus:bg-stone-50 focus:text-emerald-600 focus:outline-none"
+                          >
+                            <ShoppingBag className="h-4 w-4 text-stone-400" aria-hidden="true" />
+                            Orders
+                          </Link>
+                          <Link
+                            href="/settings"
+                            role="menuitem"
+                            tabIndex={0}
+                            onClick={() => setIsProfileOpen(false)}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-stone-700 hover:bg-stone-50 hover:text-emerald-600 transition-colors focus:bg-stone-50 focus:text-emerald-600 focus:outline-none"
+                          >
+                            <Settings className="h-4 w-4 text-stone-400" aria-hidden="true" />
+                            Settings
+                          </Link>
+                        </>
                       )}
-                      <Link
-                        href="/profile"
-                        role="menuitem"
-                        tabIndex={0}
-                        onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-stone-700 hover:bg-stone-50 hover:text-emerald-600 transition-colors focus:bg-stone-50 focus:text-emerald-600 focus:outline-none"
-                      >
-                        <User className="h-4 w-4 text-stone-400" aria-hidden="true" />
-                        Profile
-                      </Link>
-                      <Link
-                        href="/orders"
-                        role="menuitem"
-                        tabIndex={0}
-                        onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-stone-700 hover:bg-stone-50 hover:text-emerald-600 transition-colors focus:bg-stone-50 focus:text-emerald-600 focus:outline-none"
-                      >
-                        <ShoppingBag className="h-4 w-4 text-stone-400" aria-hidden="true" />
-                        Orders
-                      </Link>
-                      <Link
-                        href="/settings"
-                        role="menuitem"
-                        tabIndex={0}
-                        onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-stone-700 hover:bg-stone-50 hover:text-emerald-600 transition-colors focus:bg-stone-50 focus:text-emerald-600 focus:outline-none"
-                      >
-                        <Settings className="h-4 w-4 text-stone-400" aria-hidden="true" />
-                        Settings
-                      </Link>
                     </div>
 
-                    <div className="my-1.5 border-t border-stone-100" role="separator" />
+                    {!isGuest && (
+                      <>
+                        <div className="my-1.5 border-t border-stone-100" role="separator" />
 
-                    <div className="px-1.5">
-                      <button
-                        type="button"
-                        role="menuitem"
-                        tabIndex={0}
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          setIsLogoutModalOpen(true);
-                        }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors focus:bg-red-50 focus:text-red-700 focus:outline-none cursor-pointer text-left"
-                      >
-                        <LogOut className="h-4 w-4 text-red-500 flex-shrink-0" aria-hidden="true" />
-                        Logout
-                      </button>
-                    </div>
+                        <div className="px-1.5">
+                          <button
+                            type="button"
+                            role="menuitem"
+                            tabIndex={0}
+                            onClick={() => {
+                              setIsProfileOpen(false);
+                              setIsLogoutModalOpen(true);
+                            }}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors focus:bg-red-50 focus:text-red-700 focus:outline-none cursor-pointer text-left"
+                          >
+                            <LogOut className="h-4 w-4 text-red-500 flex-shrink-0" aria-hidden="true" />
+                            Logout
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -535,42 +554,64 @@ export default function Navbar() {
 
         {/* Sidebar Footer */}
         <div className="p-6 border-t border-white/10">
-          {accessToken ? (
+          {accessToken || isGuest ? (
             <div className="space-y-2">
-              <Link
-                href="/profile"
-                className="flex items-center gap-3.5 p-3.5 rounded-2xl hover:bg-white/10 transition-colors group"
-                onClick={() => setIsSidebarOpen(false)}
-              >
-                <div className="h-10 w-10 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  {userAvatar ? (
-                    <img
-                      src={normalizeImageUrl(userAvatar)}
-                      alt="Profile avatar"
-                      className="h-full w-full object-cover rounded-full aspect-square"
-                    />
-                  ) : (
+              {!isGuest ? (
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-3.5 p-3.5 rounded-2xl hover:bg-white/10 transition-colors group"
+                  onClick={() => setIsSidebarOpen(false)}
+                >
+                  <div className="h-10 w-10 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {userAvatar ? (
+                      <img
+                        src={normalizeImageUrl(userAvatar)}
+                        alt="Profile avatar"
+                        className="h-full w-full object-cover rounded-full aspect-square"
+                      />
+                    ) : (
+                      <User className="h-5 w-5 text-emerald-400" aria-hidden="true" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-bold text-white truncate">
+                      {userName}
+                    </p>
+                    <p className="text-xs text-stone-400">View profile</p>
+                  </div>
+                </Link>
+              ) : (
+                <div className="flex items-center gap-3.5 p-3.5 rounded-2xl group">
+                  <div className="h-10 w-10 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     <User className="h-5 w-5 text-emerald-400" aria-hidden="true" />
-                  )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-bold text-white truncate">
+                      Guest User
+                    </p>
+                    <p className="text-xs text-stone-400">Not signed in</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-base font-bold text-white truncate">
-                    {userName}
-                  </p>
-                  <p className="text-xs text-stone-400">View profile</p>
-                </div>
-              </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSidebarOpen(false);
-                  setIsLogoutModalOpen(true);
-                }}
-                className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold text-sm transition-colors cursor-pointer"
-              >
-                <LogOut className="h-4 w-4" aria-hidden="true" />
-                Logout
-              </button>
+              )}
+              {isGuest ? (
+                <Button asChild variant="primary" className="w-full h-11 text-base font-bold rounded-xl" size="default">
+                  <Link href="/login" onClick={() => setIsSidebarOpen(false)}>
+                    Sign In / Register
+                  </Link>
+                </Button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSidebarOpen(false);
+                    setIsLogoutModalOpen(true);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold text-sm transition-colors cursor-pointer"
+                >
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  Logout
+                </button>
+              )}
             </div>
           ) : (
             <div className="space-y-2.5">
