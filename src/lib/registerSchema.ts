@@ -64,7 +64,7 @@ export const registerSchema = z
       const hasLowerCase = /[a-z]/.test(val);
       const hasUpperCase = /[A-Z]/.test(val);
       const hasNumber = /[0-9]/.test(val);
-      const hasSpecialChar = /[^A-Za-z0-9]/.test(val);
+      const hasSpecialChar = /[@$!%*?&#^_\-+=(),.?":{}|<>\[\]~]/.test(val);
       if (!hasLowerCase || !hasUpperCase || !hasNumber || !hasSpecialChar) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

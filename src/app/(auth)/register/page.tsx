@@ -58,7 +58,7 @@ export default function Register() {
     hasLowerCase: /[a-z]/.test(passwordValue),
     hasUpperCase: /[A-Z]/.test(passwordValue),
     hasNumber: /[0-9]/.test(passwordValue),
-    hasSpecialChar: /[^A-Za-z0-9]/.test(passwordValue),
+    hasSpecialChar: /[@$!%*?&#^_\-+=(),.?":{}|<>\[\]~]/.test(passwordValue),
   };
   const validRulesCount = Object.values(passwordRules).filter(Boolean).length;
   const passwordStrength =
