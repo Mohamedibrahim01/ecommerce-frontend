@@ -119,29 +119,17 @@ export default function AdminCategoriesPage() {
   const onSubmit = async (values: CategoryFormValues) => {
     setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("name", values.name.trim());
-      if (values.description?.trim()) formData.append("description", values.description.trim());
-
-      const fileInput = document.getElementById("cat-img") as HTMLInputElement;
-      if (fileInput && fileInput.files && fileInput.files[0]) {
-        formData.append("image", fileInput.files[0]);
-      }
-
-      const headers = { "Content-Type": "multipart/form-data" };
-
       if (modalMode === "edit" && activeCategory) {
         const targetId = activeCategory._id || activeCategory.id;
-        await api.put(`/categories/${targetId}`, formData, { headers });
+        await api.put(`/categories/${targetId}`, values);
         toast.success(`Category "${values.name}" updated successfully!`);
         fetchCategories();
       } else {
-        await api.post("/categories", formData, { headers });
+        await api.post("/categories", values);
         toast.success(`Category "${values.name}" created successfully!`);
         fetchCategories();
       }
       reset();
-      if (fileInput) fileInput.value = "";
       setIsCreateModalOpen(false);
       setActiveCategory(null);
     } catch (err: any) {
@@ -337,12 +325,12 @@ export default function AdminCategoriesPage() {
               <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
               <Input
                 id="cat-img"
-                type="file"
-                accept="image/*"
-                className="pl-10 h-11 rounded-xl pt-2.5"
+                type="text"
+                {...register("image")}
+                placeholder="https://example.com/image.png"
+                className="pl-10 h-11 rounded-xl"
               />
             </div>
-            {modalMode === "edit" && <p className="text-xs text-stone-500 mt-1">Leave empty to keep existing image</p>}
           </Field>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-100">

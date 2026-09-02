@@ -117,7 +117,13 @@ export default function AdminOrdersPage() {
       if (selectedOrder?._id === orderToDeliver._id) {
         setSelectedOrder((prev) => (prev ? { ...prev, isDelivered: true, deliveredAt: new Date().toISOString() } : null));
       }
-      fetchOrders(pageNumber);
+      setOrders((prev) =>
+        prev.map((o) =>
+          o._id === orderToDeliver._id
+            ? { ...o, isDelivered: true, deliveredAt: new Date().toISOString() }
+            : o
+        )
+      );
     } catch (err: any) {
       console.error("Deliver status failed:", err);
       toast.error(err.response?.data?.message || "Failed to update order status.");

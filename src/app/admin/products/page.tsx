@@ -195,31 +195,16 @@ export default function AdminProductsPage() {
   const onSubmitProduct = async (values: ProductFormValues) => {
     setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("name", values.name.trim());
-      if (values.description?.trim()) formData.append("description", values.description.trim());
-      formData.append("price", values.price.toString());
-      formData.append("countInStock", values.countInStock.toString());
-      formData.append("category", values.category);
-      
-      const fileInput = document.getElementById("prod-img") as HTMLInputElement;
-      if (fileInput && fileInput.files && fileInput.files[0]) {
-        formData.append("image", fileInput.files[0]);
-      }
-
-      const headers = { "Content-Type": "multipart/form-data" };
-
       if (modalMode === "edit" && activeProduct) {
-        await api.put(`/products/${activeProduct._id}`, formData, { headers });
+        await api.put(`/products/${activeProduct._id}`, values);
         toast.success(`Product "${values.name}" updated successfully!`);
       } else {
-        await api.post("/products", formData, { headers });
+        await api.post("/products", values);
         toast.success(`Product "${values.name}" ${modalMode === "duplicate" ? "duplicated" : "created"} successfully!`);
       }
       
       fetchProducts(pageNumber); // Refresh
       reset();
-      if (fileInput) fileInput.value = "";
       setIsAddModalOpen(false);
       setActiveProduct(null);
     } catch (err: any) {
@@ -534,12 +519,12 @@ export default function AdminProductsPage() {
                 <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
                 <Input
                   id="prod-img"
-                  type="file"
-                  accept="image/*"
-                  className="pl-10 h-11 rounded-xl pt-2.5"
+                  type="text"
+                  {...register("image")}
+                  placeholder="https://example.com/image.png"
+                  className="pl-10 h-11 rounded-xl"
                 />
               </div>
-              {modalMode === "edit" && <p className="text-xs text-stone-500 mt-1">Leave empty to keep existing image</p>}
             </Field>
           </div>
 
