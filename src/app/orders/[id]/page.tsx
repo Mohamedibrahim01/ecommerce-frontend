@@ -75,6 +75,13 @@ export default function OrderDetailsPage() {
     }
 
     const fetchOrder = async () => {
+      // Validate that id is a valid 24-character MongoDB ObjectId
+      if (typeof id === 'string' && !/^[a-f\d]{24}$/i.test(id)) {
+        toast.error("Invalid order ID");
+        router.replace("/orders");
+        return;
+      }
+
       try {
         const response = await api.get(`/orders/${id}`);
         setOrder(response.data?.data || response.data);
