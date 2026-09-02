@@ -28,10 +28,10 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
-  
+
   // Custom Address State
   const [useCustomAddress, setUseCustomAddress] = useState(false);
   const [customAddress, setCustomAddress] = useState({
@@ -41,9 +41,9 @@ export default function CheckoutPage() {
     country: "Egypt"
   });
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  
+
   const [paymentMethod, setPaymentMethod] = useState<string>("Cash on Delivery");
-  
+
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [couponCode, setCouponCode] = useState("");
 
@@ -69,7 +69,7 @@ export default function CheckoutPage() {
         const fetchedAddresses: Address[] = Array.isArray(response.data)
           ? response.data
           : response.data?.addresses || [];
-          
+
         const sortedAddresses = [...fetchedAddresses].sort((a, b) =>
           a.isDefault === b.isDefault ? 0 : a.isDefault ? -1 : 1,
         );
@@ -96,12 +96,12 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!accessToken) {
       router.push("/login?redirect=/orders/checkout");
       return;
     }
-    
+
     let shippingAddressPayload;
 
     if (useCustomAddress || addresses.length === 0) {
@@ -154,7 +154,7 @@ export default function CheckoutPage() {
     try {
       setIsSubmitting(true);
       const response = await api.post("/orders", payload);
-      
+
       const orderId = response.data?._id || response.data?.data?._id;
       if (!orderId) {
         throw new Error("Missing Order ID in response.");
@@ -212,11 +212,10 @@ export default function CheckoutPage() {
                         setSelectedAddressId(addr.id);
                         setUseCustomAddress(false);
                       }}
-                      className={`p-4 border-2 rounded-2xl cursor-pointer transition-all flex items-start gap-3.5 ${
-                        isSelected
+                      className={`p-4 border-2 rounded-2xl cursor-pointer transition-all flex items-start gap-3.5 ${isSelected
                           ? "border-emerald-600 bg-emerald-50/60 shadow-sm"
                           : "border-gray-200 bg-white hover:border-gray-300"
-                      }`}
+                        }`}
                     >
                       <div className={`w-5 h-5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${isSelected ? "border-emerald-600 bg-emerald-600 text-white" : "border-gray-300 bg-white"}`}>
                         {isSelected && <CheckCircle2 className="w-3.5 h-3.5" />}
@@ -243,11 +242,10 @@ export default function CheckoutPage() {
                 {/* Custom Address Option */}
                 <div
                   onClick={() => setUseCustomAddress(true)}
-                  className={`p-4 border-2 rounded-2xl cursor-pointer transition-all ${
-                    useCustomAddress
+                  className={`p-4 border-2 rounded-2xl cursor-pointer transition-all ${useCustomAddress
                       ? "border-emerald-600 bg-emerald-50/60 shadow-sm"
                       : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3.5 mb-3">
                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${useCustomAddress ? "border-emerald-600 bg-emerald-600 text-white" : "border-gray-300 bg-white"}`}>
@@ -257,7 +255,7 @@ export default function CheckoutPage() {
                       Use a different address for this order
                     </p>
                   </div>
-                  
+
                   {useCustomAddress && (
                     <div className="grid grid-cols-2 gap-3 pl-8">
                       <input
@@ -303,7 +301,7 @@ export default function CheckoutPage() {
                     Enter your delivery address for this order.
                   </p>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-3">
                   <input
                     type="text"
@@ -355,11 +353,10 @@ export default function CheckoutPage() {
                 <div
                   key={method.id}
                   onClick={() => setPaymentMethod(method.id)}
-                  className={`p-4 border-2 rounded-2xl cursor-pointer transition-all flex items-center gap-3 ${
-                    paymentMethod === method.id
+                  className={`p-4 border-2 rounded-2xl cursor-pointer transition-all flex items-center gap-3 ${paymentMethod === method.id
                       ? "border-emerald-500 bg-emerald-50"
                       : "border-gray-100 hover:border-gray-200"
-                  }`}
+                    }`}
                 >
                   <div className="text-2xl">{method.icon}</div>
                   <div className="font-bold text-sm">{method.label}</div>
@@ -368,31 +365,6 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Promo Code Section */}
-          <div className="space-y-4">
-            <label className="font-bold text-lg text-gray-700 flex items-center gap-2">
-              <Tag className="w-5 h-5" /> Promo Code
-              <span className="text-sm font-normal text-gray-400 ml-1">
-                (Optional)
-              </span>
-            </label>
-            <div className="flex gap-2">
-              <input
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-400 uppercase"
-                placeholder="e.g. SAVE20"
-              />
-              <Button
-                type="button"
-                onClick={() => toast.info("Promo codes coming soon!")}
-                disabled={!couponCode}
-                className="h-[50px] px-6 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold"
-              >
-                Apply
-              </Button>
-            </div>
-          </div>
 
           {/* Submit Button */}
           <Button
