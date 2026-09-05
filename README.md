@@ -1,54 +1,59 @@
-#  PeakSupps - Premium Supplement E-Commerce Platform
+# ⚡ Premium Supplements — E-Commerce Frontend
 
-**PeakSupps** is a comprehensive and advanced e-commerce platform dedicated to selling nutritional supplements and tracking the health progress of athletes. The platform is built using the latest technologies to ensure exceptional performance and a seamless, modern user experience (Clean UI).
-
----
-
-##  Tech Stack
-
-### Frontend:
-* **Framework:** Next.js 16+ 
-* **Styling & UI Components:** Tailwind CSS & [shadcn/ui](https://ui.shadcn.com/)
-* **Icons:** Lucide React
-* **State Management & Data Fetching:** React Hooks & Context API / Axios
-* **Design Theme:** Premium Light Mode (Cobalt Blue `#0044CC` & Sporty Orange `#FF6600`)
-
-### Backend (Integration in Progress):
-* **Framework:** .NET Web API
-* **Database:** Entity Framework Core
-* **Real-time Features:** SignalR (for real-time stock reservation and FOMO triggers)
-* **Background Jobs:** Hangfire (for dynamic near-expiry clearance pricing)
-* **Authentication:** Secure JWT & Refresh Tokens
+A high-performance, modern e-commerce web application specialized in sports nutrition and dietary supplements. Built with **Next.js (App Router)** and **TypeScript**, seamlessly integrated with a secure Node.js/Express RESTful API.
 
 ---
 
-##  Key Features Implemented
+## 🚀 Key Features
 
-1. **Authentication & Onboarding:**
-   * Secure Sign In and Sign Up screens prepared for JWT token handling.
-   * Dedicated Onboarding flow to capture user body metrics (Age, Weight, Height) and Fitness Goals (Bulking, Cutting, Endurance).
-   * Fully structured Password Reset flow and Email Verification system (`/verify-email`).
+### 🛒 Customer Experience
+- **Dynamic Catalog & Filtering:** Search products and filter by category IDs/slugs with real-time URL state synchronization.
+- **Persistent Cart Engine:** Synchronized shopping cart supporting authenticated and guest user experiences.
+- **Secure Authentication:** JWT-based authentication flow with refresh tokens, role-based session persistence, and client-side guest browsing.
+- **Responsive Layout & Visuals:** Optimized layout featuring Next.js image fallbacks for broken URLs and skeleton loaders for smooth async data fetching.
+- **Checkout & Order History:** Address selection, order placement, and dedicated `/orders/my-orders` tracking.
 
-2. **Product Catalog & Advanced Filters:**
-   * High-performance catalog browsing with dynamic filtering by goal, flavor, price, and category.
-   * Built-in "Smart Local Alternative" banner suggestion to promote budget-friendly local products.
-
-3. **Smart Health Tech Components:**
-   * Interactive BMI calculator providing instant status reports and tailored product recommendations.
-   * "Interactive Ingredients" popovers explaining the clinical benefits of specific active compounds on click.
+### 🛡️ Admin Dashboard (`/admin`)
+- **Protected Layout:** Route-level guards restricting access strictly to verified admin accounts.
+- **Product Management:** Full CRUD operations for catalog items with stock tracking, category association, and direct image URL handling.
+- **Category Management:** Create, update, and manage categories mapped directly to MongoDB documents.
+- **User Administration:** View registered users, inspect details, and manage roles.
+- **Order Fulfillment:** Comprehensive customer order overview with one-click order status updates (`Delivered`).
 
 ---
 
-##  Project Structure
+## 🛠️ Tech Stack
+
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **State Management:** [Zustand](https://github.com/pmndrs/zustand)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/) & [shadcn/ui](https://ui.shadcn.com/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **HTTP Client:** [Axios](https://axios-http.com/) (Custom interceptors for Bearer tokens & 401 refresh flow)
+
+---
+
+## 📁 Project Architecture
 
 ```text
-├── app/                  # Next.js App Router (Pages & Routes)
-│   ├── (auth)/           # Authentication Route Group (Login, Register, Onboarding)
-│   ├── verify-email/     # Email Verification handler route
-│   ├── layout.tsx        # Global Layout & Root Providers
-│   └── page.tsx          # Store Front Home Page
-├── components/           # Reusable UI Components
-│   ├── ui/               # Radix-based shadcn primitives (Buttons, Inputs, Cards)
-│   └── auth/             # Custom Auth forms and layout helpers
-├── public/               # Static assets (Images, Logos, Brand assets)
-└── tailwind.config.ts    # Custom brand color theme configuration
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── (auth)/          # Login, Register, Email confirmation
+│   │   ├── (shop)/          # Products, Categories, Cart, Checkout
+│   │   ├── admin/           # Admin Dashboard (Users, Products, Categories, Orders)
+│   │   ├── profile/         # User profile & saved addresses
+│   │   ├── layout.tsx       # Global root layout & Providers
+│   │   └── page.tsx         # Storefront landing page
+│   ├── components/
+│   │   ├── shared/          # Navbar, Footer, UI wrappers
+│   │   ├── ui/              # Buttons, Badges, Modals, Skeleton loaders
+│   │   └── modules/         # ProductCard, CartDrawer, AdminTables
+│   ├── lib/
+│   │   ├── axiosInstance.ts # Configured Axios client with interceptors
+│   │   └── utils.ts         # Formatting, classnames, helpers
+│   ├── services/            # Modular API service handlers (auth, products, orders)
+│   └── stores/              # Zustand stores (useAuthStore, useCartStore)
+├── public/                  # Static assets & placeholder images
+├── next.config.ts           # Remote image whitelisting & runtime config
+└── package.json
